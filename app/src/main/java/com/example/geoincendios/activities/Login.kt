@@ -39,7 +39,7 @@ class Login : AppCompatActivity() {
 
         loginBtn.setOnClickListener {
 
-            userService.getUsuarios().enqueue(object: Callback<List<Usuario>> {
+            /*userService.getUsuarios().enqueue(object: Callback<List<Usuario>> {
                 override fun onResponse(call: Call<List<Usuario>>, response: Response<List<Usuario>>) {
                     val usuarios = response!!.body()
                     Log.i(TAG, "hola")
@@ -50,7 +50,7 @@ class Login : AppCompatActivity() {
                     t?.printStackTrace()
                 }
             })
-
+*/
             val i = Intent(this, MainActivity::class.java)
             startActivity(i)
 

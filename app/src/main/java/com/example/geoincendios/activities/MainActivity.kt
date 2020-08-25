@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import androidx.fragment.app.Fragment
 import com.example.geoincendios.R
+import com.example.geoincendios.fragments.ContribuirFragment
 import com.example.geoincendios.fragments.MapsFragment
 import com.example.geoincendios.fragments.PerfilFragment
 import com.google.android.gms.maps.MapFragment
@@ -30,7 +31,11 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(MapsFragment())
                     return@setOnNavigationItemSelectedListener true
                 }
-                menuItem.itemId == R.id.navigationReporte -> {
+                menuItem.itemId == R.id.navigationContribuir -> {
+                    loadFragment(ContribuirFragment())
+                    return@setOnNavigationItemSelectedListener true
+                }
+                menuItem.itemId == R.id.navigationGuardado -> {
                     loadFragment(MapsFragment())
                     return@setOnNavigationItemSelectedListener true
                 }

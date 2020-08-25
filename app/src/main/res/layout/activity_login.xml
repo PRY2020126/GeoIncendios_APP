@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.Login">
+    tools:context=".activities.LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,13 +21,21 @@
             android:layout_height="80dp"
             android:layout_gravity="center"
             android:layout_marginTop="80dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Iniciar Sesión"
+            android:textSize="25dp"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            ></TextView>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp"
-            android:layout_marginTop="60dp">
+            android:layout_marginTop="30dp">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/email_user_container"
@@ -88,8 +96,8 @@
                 android:id="@+id/login_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Iniciar Sesion"
-                android:layout_marginVertical="40dp"
+                android:text="Ingresar"
+                android:layout_marginVertical="25dp"
                 android:textColor="#FFFF"
                 android:layout_marginHorizontal="20dp"/>
 
@@ -98,7 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginVertical="0dp"
+                android:layout_marginVertical="10dp"
                 android:text="Registrate"
                 android:textColor="#FFFF" />
 

@@ -5,12 +5,17 @@
         android:icon="@drawable/ic_home"
         android:title="@string/inicio"></item>
 
-    <item android:id="@+id/navigationReporte"
-        android:icon="@drawable/ic_home"
-        android:title="@string/reporte"></item>
+    <item android:id="@+id/navigationContribuir"
+        android:icon="@drawable/ic_add_alert"
+        android:title="@string/contribuir"></item>
+
+    <item android:id="@+id/navigationGuardado"
+        android:icon="@drawable/ic_location"
+        android:title="@string/guardado"></item>
 
     <item android:id="@+id/navigationPerfil"
         android:icon="@drawable/ic_account"
         android:title="@string/perfil"></item>
+
 
 </menu>

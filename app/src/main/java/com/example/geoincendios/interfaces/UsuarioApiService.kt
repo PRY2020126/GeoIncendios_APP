@@ -1,22 +1,29 @@
 package com.example.geoincendios.interfaces
 
+import com.example.geoincendios.models.DTO.LoginDTO
+import com.example.geoincendios.models.DTO.ResponseDTO
 import com.example.geoincendios.models.Usuario
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface UsuarioApiService {
 
-    @POST("insertar_producto.php")
-    fun getAllUsers(@Body loginRequest: Usuario): Call<Usuario>
+    @POST("users")
+    fun saveUser(@Body usuario: Usuario): Call<Any>
+
+    @GET("users")
+    fun getUsers(@Header("Authorization") authToken: String): Call<Usuario>
 
 
-    @GET("recibir_usuarios.php")
-    fun getUsuarios(): Call<List<Usuario>>
+    @GET("users")
+    fun getJson(@Header("Authorization") authToken: String): Call<Any>
 
-    @GET("insertar_producto.php")
-    fun getUsuarioById(@Path("id") id: Long): Call<Usuario>
+    @POST("login")
+    fun generar_token(@Body user: LoginDTO ): Call<Void>
+
+    @POST("users/login")
+    fun login(@Header("Authorization") authToken: String,@Body user: LoginDTO ): Call<Any>
+
+
 
 }

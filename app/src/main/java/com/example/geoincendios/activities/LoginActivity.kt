@@ -2,16 +2,24 @@ package com.example.geoincendios.activities
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.text.set
+import androidx.lifecycle.Transformations.map
 import com.example.geoincendios.R
-import com.example.geoincendios.api.service.UserClient
+import com.example.geoincendios.fragments.MapsFragment
 import com.example.geoincendios.interfaces.UsuarioApiService
+import com.example.geoincendios.models.DTO.LoginDTO
 import com.example.geoincendios.models.Usuario
+import com.example.geoincendios.util.URL_API
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -25,9 +33,13 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var loginBtn: Button
     private lateinit var registerBtn: Button
-    private lateinit var userService: UsuarioApiService
-    private lateinit var loginService: UserClient
 
+    private lateinit var usernameET: EditText
+    private lateinit var passwordET: EditText
+
+    private lateinit var userService: UsuarioApiService
+
+    private var converter = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,15 +48,21 @@ class LoginActivity : AppCompatActivity() {
         loginBtn = findViewById(R.id.login_button)
         registerBtn = findViewById(R.id.register_button)
 
+        usernameET = findViewById(R.id.et_login_email)
+        passwordET = findViewById(R.id.et_login_password)
+
         val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://192.168.1.62:8080/")
+            .baseUrl(URL_API)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         userService = retrofit.create(UsuarioApiService::class.java)
-        loginService = retrofit.create(UserClient::class.java)
 
-        var token = "eyJhbGciOiJIUzUxMiJ9.eyJpYXQiOjE1OTgzMTQ3MzcsImlzcyI6Ind3dy5zZXJnaW9zZWtzLmNvbS5wZSIsInN1YiI6ImFkbWluIiwiZXhwIjoxNTk5MTc4NzM3fQ.Rl9v3865C6wiKsJZkJoxhCPNiqA0vMs4fs-u3dsg3n8z_SgNeWf8Z-GFqqtyPJfG6vvm-5PJtmGeYwvGKcys9w"
+        //pedirPermisos()
+
+        usernameET.setText("testeo")
+
+        var token = ""
 
         registerBtn.setOnClickListener {
             val i = Intent(this, RegisterActivity::class.java)
@@ -53,41 +71,78 @@ class LoginActivity : AppCompatActivity() {
 
         loginBtn.setOnClickListener {
 
+            if(usernameET.text.isEmpty() || passwordET.text.isEmpty())
+            {
+                Toast.makeText(this@LoginActivity,"Por favor complete los campos" ,Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
 
-          /*  loginService.getSecret("Bearer "+token).enqueue(object : Callback<List<Usuario>>{
-                override fun onResponse(call: Call<List<Usuario>>, response: Response<List<Usuario>>) {
-                    val usuarios = response.body()
-                    Log.i(TAG,response.body().toString())
-                    Toast.makeText(this@LoginActivity, response.body().toString(),Toast.LENGTH_LONG).show()
+
+            var user = LoginDTO(username = usernameET.text.toString(),password = passwordET.text.toString())
+
+            Log.i("Usuario: ", user.toString())
+
+
+
+
+            userService.generar_token(user).enqueue(object : Callback<Void>{
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if( response.headers().values("Authorization").isNullOrEmpty())
+                    {
+                        Toast.makeText(this@LoginActivity,"Usuario o contraseña no existe" ,Toast.LENGTH_LONG).show()
+                        return
+                    }
+                    token = response.headers().values("Authorization")[0]
+
+                    Log.i("Bryan",token)
+                    //Toast.makeText(this@LoginActivity, token,Toast.LENGTH_LONG).show()
+
+
+                    userService.login(token, user).enqueue(object : Callback<Any>{
+                        override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                            val usuarios = response.body()
+                            Log.i(TAG,response.body().toString())
+                            //Toast.makeText(this@LoginActivity, response.body().toString(),Toast.LENGTH_LONG).show()
+
+                            Toast.makeText(this@LoginActivity, "Inicio de Sesión Correcto",Toast.LENGTH_LONG).show()
+
+
+                            val i = Intent(this@LoginActivity, MainActivity::class.java)
+
+                            startActivity(i)
+                        }
+
+                        override fun onFailure(call: Call<Any>, t: Throwable) {
+                            Log.i(TAG, "MAaaaal")
+                        }
+                    })
+
+
+
                 }
-
-                override fun onFailure(call: Call<List<Usuario>>, t: Throwable) {
-                    Log.i(TAG, "MAaaaal")
-                }
-            })*/
-
-            loginService.getSecret3("Bearer "+token).enqueue(object : Callback<Any>{
-                override fun onResponse(call: Call<Any>, response: Response<Any>) {
-                    val usuarios = response.body()
-                    Log.i(TAG,response.body().toString())
-                    Toast.makeText(this@LoginActivity, response.body().toString(),Toast.LENGTH_LONG).show()
-
-                    val i = Intent(this@LoginActivity, MainActivity::class.java)
-                    startActivity(i)
-                }
-
-                override fun onFailure(call: Call<Any>, t: Throwable) {
-                    Log.i(TAG, "MAaaaal")
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("MAAAAAAAAL", "MAaaaal")
                 }
             })
-
-            /*val i = Intent(this, MainActivity::class.java)
-            startActivity(i)
-*/
         }
 
+    }
+
+    fun pedirPermisos(): Boolean {
+        val requestCode = 101
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val per =
+                arrayOf<String>(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+            requestPermissions(per, requestCode)
+            if (ActivityCompat.checkSelfPermission(this@LoginActivity, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+            else {
+                return true
+            }
         }
-
-
+        return false
+    }
 }
 

@@ -6,6 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".activities.RegisterActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,6 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
 
         <TextView
             android:layout_width="match_parent"
@@ -25,126 +30,176 @@
             android:textColor="#000000"
             ></TextView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_marginTop="30dp">
-
-        <androidx.cardview.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="5dp"
-            app:cardPreventCornerOverlap="false">
+            android:layout_height="match_parent"
+            android:layout_marginTop="15dp"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-            <EditText
-                android:id="@+id/et_register_nombres"
-                style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp"
-                android:ems="10"
-                android:hint="Nombres"
-                android:textSize="14sp" />
-        </androidx.cardview.widget.CardView>
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="5dp"
-            app:cardPreventCornerOverlap="false">
-            <EditText
-                android:id="@+id/et_register_apellidos"
-                style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                <EditText
+                    android:id="@+id/et_register_nombres"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Nombres"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp"
-                android:ems="10"
-                android:hint="Apellidos"
-                android:textSize="14sp" />
-        </androidx.cardview.widget.CardView>
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="5dp"
-            app:cardPreventCornerOverlap="false">
-        <EditText
-            android:id="@+id/et_register_correo"
-            style="@style/Base.Widget.MaterialComponents.TextInputEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:ems="10"
-            android:hint="Correo"
-            android:textSize="14sp" />
-        </androidx.cardview.widget.CardView>
+                <EditText
+                    android:id="@+id/et_register_apellidos"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Apellidos"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
 
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
-            app:cardCornerRadius="30dp"
-            app:cardElevation="5dp"
-            app:cardPreventCornerOverlap="false">
-            <EditText
-                android:id="@+id/et_register_contrasena"
-                style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp"
-                android:ems="10"
-                android:hint="Contraseña"
-                android:inputType="textPassword"
-                android:textSize="14sp" />
-        </androidx.cardview.widget.CardView>
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
+
+                <EditText
+                    android:id="@+id/et_register_correo"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Correo"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
+
+                <EditText
+                    android:id="@+id/et_register_username"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Nombre de usuario"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
+
+                <EditText
+                    android:id="@+id/et_register_contrasena"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Contraseña"
+                    android:inputType="textPassword"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="5dp"
+                app:cardPreventCornerOverlap="false">
+
+                <EditText
+                    android:id="@+id/et_register_contrasena_repeat"
+                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="15dp"
+                    android:ems="10"
+                    android:hint="Repita la contraseña"
+                    android:inputType="textPassword"
+                    android:textSize="14sp" />
+            </androidx.cardview.widget.CardView>
 
 
 
-
-
-
-        <Button
-            android:id="@+id/registrar_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Registrar"
-            android:layout_marginVertical="25dp"
-            android:textColor="#FFFF"
-            android:layout_marginHorizontal="20dp"/>
-
-
+            <Button
+                android:id="@+id/registrar_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="20dp"
+                android:text="Registrar"
+                android:textColor="#FFFF" />
+            </LinearLayout>
     </LinearLayout>
-    </LinearLayout>
 
-
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

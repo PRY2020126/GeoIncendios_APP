@@ -52,13 +52,13 @@
                 app:cardPreventCornerOverlap="false">
 
                 <EditText
-                    android:id="@+id/user_email"
+                    android:id="@+id/et_login_email"
                     style="@style/Base.Widget.MaterialComponents.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="15dp"
                     android:ems="10"
-                    android:hint="Correo"
+                    android:hint="Nombre de usuario"
                     android:textSize="14sp" />
 
 
@@ -79,7 +79,7 @@
                 app:cardPreventCornerOverlap="false">
 
                 <EditText
-                    android:id="@+id/user_pass"
+                    android:id="@+id/et_login_password"
                     style="@style/Base.Widget.MaterialComponents.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

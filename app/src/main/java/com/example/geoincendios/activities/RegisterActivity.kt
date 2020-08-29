@@ -27,7 +27,6 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var nombresET: EditText
     private lateinit var apellidosET: EditText
     private lateinit var correoET: EditText
-    private lateinit var usernameET: EditText
     private lateinit var contrasenaET: EditText
     private lateinit var repetir_contrasenaET: EditText
 
@@ -50,7 +49,6 @@ class RegisterActivity : AppCompatActivity() {
         nombresET = findViewById(R.id.et_register_nombres)
         apellidosET = findViewById(R.id.et_register_apellidos)
         correoET = findViewById(R.id.et_register_correo)
-        usernameET = findViewById(R.id.et_register_username)
         contrasenaET = findViewById(R.id.et_register_contrasena)
         repetir_contrasenaET = findViewById(R.id.et_register_contrasena_repeat)
 
@@ -60,8 +58,8 @@ class RegisterActivity : AppCompatActivity() {
         registrarbtn.setOnClickListener {
 
 
-            if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty() ||
-                usernameET.text.isEmpty() || contrasenaET.text.isEmpty() || repetir_contrasenaET.text.isEmpty())
+            if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty()
+                 || contrasenaET.text.isEmpty() || repetir_contrasenaET.text.isEmpty())
             {
                 Toast.makeText(this,"Complete todos los campos" ,Toast.LENGTH_LONG).show()
                 return@setOnClickListener
@@ -76,8 +74,8 @@ class RegisterActivity : AppCompatActivity() {
 
 
             var usuario = Usuario(idusuario = "0", firtsName = nombresET.text.toString(),
-                lastName = nombresET.text.toString(), username = usernameET.text.toString(), email = correoET.text.toString(),
-                password = contrasenaET.text.toString(),role =  Role(1,"Administrador") , status = 1, user_reg = null,
+                lastName = nombresET.text.toString(), email = correoET.text.toString(),
+                password = contrasenaET.text.toString(),role =  Role(3,"Móvil") , status = 1, user_reg = null,
                 fec_reg = "2020-08-14T02:14:32.000+00:00", cpc_reg = null, user_mod = null, cpc_mod = null, fec_mod = null )
 
             Toast.makeText(this@RegisterActivity,usuario.toString() ,Toast.LENGTH_LONG).show()

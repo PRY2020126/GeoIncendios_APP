@@ -58,7 +58,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="15dp"
                     android:ems="10"
-                    android:hint="Nombre de usuario"
+                    android:hint="Correo electrónico"
                     android:textSize="14sp" />
 
 

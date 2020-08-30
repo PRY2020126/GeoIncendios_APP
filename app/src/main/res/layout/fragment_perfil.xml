@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.PerfilFragment">
+    tools:context=".fragments.PerfilFragment"
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -111,6 +112,17 @@
                 android:textSize="20dp"
                 android:layout_weight="1"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_editar_perfil"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Editar Perfil"
+            android:textSize="25dp"
+            android:backgroundTint="@color/colorDivider"
+            android:layout_marginTop="20dp"></Button>
+
         <Button
             android:id="@+id/btn_cerrar_sesion"
             android:layout_width="wrap_content"
@@ -118,7 +130,10 @@
             android:layout_gravity="center"
             android:text="Cerrar Sesion"
             android:textSize="25dp"
+            android:backgroundTint="#F44336"
             android:layout_marginTop="20dp"></Button>
+
+
 
     </LinearLayout>
 </FrameLayout>

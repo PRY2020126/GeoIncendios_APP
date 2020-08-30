@@ -124,6 +124,7 @@ class LoginActivity : AppCompatActivity() {
                             Toast.makeText(this@LoginActivity, "Inicio de Sesión Correcto",Toast.LENGTH_LONG).show()
 
 
+                            editor.putString("idusuario",usuario!!.data.idusuario.toString())
                             editor.putString("email",correoET.text.toString())
                             editor.putString("password",passwordET.text.toString())
                             editor.putString("name",usuario!!.data.firtsName + usuario!!.data.lastName)

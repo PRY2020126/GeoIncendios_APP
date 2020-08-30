@@ -41,7 +41,7 @@ class Splash_screen : AppCompatActivity() {
         var pass = prefs.getString("password","")
         var token = prefs.getString("token","")
 
-        Toast.makeText(this,email + pass + token, Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this,email + pass + token, Toast.LENGTH_SHORT).show()
 
         iv_note.alpha =0f
 

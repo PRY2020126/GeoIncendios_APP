@@ -18,6 +18,10 @@ interface UsuarioApiService {
     @GET("users/{id}")
     fun getUserById(@Header("Authorization") authToken: String,@Path("id") id:Long): Call<Usuario>
 
+    @POST("users/{id}")
+    fun editarPerfil(@Header("Authorization") authToken: String,@Body usuario: Usuario): Call<Usuario>
+
+
     @GET("users")
     fun getJson(@Header("Authorization") authToken: String): Call<Any>
 

@@ -12,6 +12,10 @@ import android.widget.TextView
 import com.example.geoincendios.R
 import com.example.geoincendios.activities.LoginActivity
 import com.example.geoincendios.activities.MainActivity
+import com.example.geoincendios.interfaces.UsuarioApiService
+import com.example.geoincendios.util.URL_API
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class PerfilFragment : Fragment() {
@@ -20,6 +24,9 @@ class PerfilFragment : Fragment() {
     private lateinit var tv_correo : TextView
     private lateinit var tv_rol : TextView
     private lateinit var btn_cerrar_sesion : Button
+
+    private lateinit var userService: UsuarioApiService
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +39,15 @@ class PerfilFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         var view =  inflater.inflate(R.layout.fragment_perfil, container, false)
+
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(URL_API)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+
+        userService = retrofit.create(UsuarioApiService::class.java)
+
 
         val prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         val edit = prefs.edit()
@@ -61,7 +77,12 @@ class PerfilFragment : Fragment() {
         return  view
     }
 
-    companion object {
+    private fun editar_perfil(){
 
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance() = PerfilFragment()
     }
 }

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.emmanuelkehinde.shutdown.Shutdown
 import com.example.geoincendios.R
 import com.example.geoincendios.fragments.ContribuirFragment
 import com.example.geoincendios.fragments.GuardadosFragment
@@ -182,7 +183,7 @@ class MainActivity : AppCompatActivity() {
         if (listState.size >= 1) {
             recoverFragment()
         } else {
-            super.onBackPressed()
+            Shutdown.now(this)
         }
     }
 

@@ -70,7 +70,7 @@ class PerfilFragment : Fragment() {
 
             val i = Intent(context, LoginActivity::class.java)
             startActivity(i)
-
+            activity!!.finish()
         }
 
 

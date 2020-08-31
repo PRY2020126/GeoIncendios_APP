@@ -53,6 +53,7 @@ class Splash_screen : AppCompatActivity() {
                     Toast.makeText(this@Splash_screen, "Inicio de Sesión Correcto", Toast.LENGTH_LONG).show()
                     val i = Intent(this@Splash_screen, MainActivity::class.java)
                     startActivity(i)
+                    finish()
                 }
                 override fun onFailure(call: Call<UserDTO>, t: Throwable) {
                     Log.i("AMM", "MAaaaal")

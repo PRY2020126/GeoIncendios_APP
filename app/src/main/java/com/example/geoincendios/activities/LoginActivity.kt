@@ -9,6 +9,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.emmanuelkehinde.shutdown.Shutdown
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.models.DTO.LoginDTO
@@ -21,7 +22,12 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+
+
 class LoginActivity : AppCompatActivity() {
+
+    private val INTERVALO = 2000
+    //private lateinit var tiempoPrimerClick : Long
 
     private val TAG = "Bryan"
     private val key = "Correo"
@@ -41,21 +47,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         //PreferenceManager
-
         val prefs = getSharedPreferences("user", Context.MODE_PRIVATE)
         prefs.getString("email","")
         prefs.getString("password","")
         val editor = prefs.edit()
-
-        /*val editor = prefs.edit()
-        editor.putString(key,"correo")
-        editor.apply()
-
-        editor.remove(key)
-        editor.apply()*/
-
-
-
 
         loginBtn = findViewById(R.id.login_button)
         registerBtn = findViewById(R.id.register_button)
@@ -83,11 +78,6 @@ class LoginActivity : AppCompatActivity() {
             startActivity(i)
         }
 
-        if (correoET.text.isNullOrEmpty() || passwordET.text.isNullOrEmpty())
-        {
-
-        }
-
         loginBtn.setOnClickListener {
 
             if(correoET.text.isEmpty() || passwordET.text.isEmpty())
@@ -96,11 +86,7 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-
             var user = LoginDTO(email = correoET.text.toString(),password = passwordET.text.toString())
-
-
-
 
             userService.generar_token(user).enqueue(object : Callback<Void>{
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -136,6 +122,7 @@ class LoginActivity : AppCompatActivity() {
 
                             val i = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(i)
+                            finish()
                         }
 
                         override fun onFailure(call: Call<UserDTO>, t: Throwable) {
@@ -152,6 +139,10 @@ class LoginActivity : AppCompatActivity() {
             })
         }
 
+    }
+
+    override fun onBackPressed() {
+        Shutdown.now(this)
     }
 
 }

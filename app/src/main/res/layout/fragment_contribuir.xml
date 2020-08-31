@@ -4,11 +4,128 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ContribuirFragment">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="28dp"
+                android:text="Contribuir"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:layout_gravity="center"
+                android:layout_marginBottom="15dp"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Direccion:"
+                android:textColor="#000000"
+                android:textSize="20dp"
+                android:textStyle="bold"></TextView>
+
+            <EditText
+                android:id="@+id/et_direccion_contribuir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ingrese Direccion"
+                android:textSize="15dp"></EditText>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descripción:"
+                android:textColor="#000000"
+                android:textSize="20dp"
+                android:textStyle="bold"></TextView>
+            <EditText
+                android:id="@+id/et_descripcion_o_motivo_contribuir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Razón o Motivo por la que la considera zona de riesgo"
+                android:textSize="15dp"></EditText>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Motivo"
+                android:textColor="#000000"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                ></TextView>
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/defaultValue" ></Spinner>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="2"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Latitud:"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    android:layout_weight="1"
+                    ></TextView>
+                <TextView
+                    android:id="@+id/tv_longitud_contribuir"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="0.0000"></TextView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Longitud:"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:textSize="20dp"
+                    android:layout_weight="1"
+                    ></TextView>
+                <TextView
+                    android:id="@+id/tv_latitud_contribuir"
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="0.0000"></TextView>
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/mapContribuir"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
 
 </FrameLayout>

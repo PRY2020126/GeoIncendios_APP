@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="defaultValue">
+<string-array name="Motivos">
     <item>--Selecciona un motivo--</item>
-    <item>Fiestas</item>
-    <item>Odio</item>
+    <item >Edificación</item>
+    <item>Número de Incendios</item>
+    <item></item>
 </string-array>
 </resources>

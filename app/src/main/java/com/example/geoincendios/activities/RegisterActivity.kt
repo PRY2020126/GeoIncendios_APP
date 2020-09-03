@@ -61,7 +61,7 @@ class RegisterActivity : AppCompatActivity() {
             if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty()
                  || contrasenaET.text.isEmpty() || repetir_contrasenaET.text.isEmpty())
             {
-                Toast.makeText(this,"Complete todos los campos" ,Toast.LENGTH_LONG).show()
+                Toast.makeText(this,"Complete los campos" ,Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -73,12 +73,13 @@ class RegisterActivity : AppCompatActivity() {
 
 
 
+
             var usuario = Usuario(idusuario = "0", firtsName = nombresET.text.toString(),
-                lastName = nombresET.text.toString(), email = correoET.text.toString(),
+                lastName = apellidosET.text.toString(), email = correoET.text.toString(),
                 password = contrasenaET.text.toString(),role =  Role(3,"Móvil") , status = 1, user_reg = null,
                 fec_reg = "2020-08-14T02:14:32.000+00:00", cpc_reg = null, user_mod = null, cpc_mod = null, fec_mod = null )
 
-            Toast.makeText(this@RegisterActivity,usuario.toString() ,Toast.LENGTH_LONG).show()
+            //Toast.makeText(this@RegisterActivity,usuario.toString() ,Toast.LENGTH_LONG).show()
 
 
             userService.saveUser(usuario).enqueue(object : Callback<Any>{
@@ -91,6 +92,7 @@ class RegisterActivity : AppCompatActivity() {
 
                     val i = Intent(this@RegisterActivity, LoginActivity::class.java)
                     startActivity(i)
+                    finish()
                 }
 
                 override fun onFailure(call: Call<Any>, t: Throwable) {

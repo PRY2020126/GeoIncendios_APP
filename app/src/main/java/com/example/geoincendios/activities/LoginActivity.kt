@@ -26,8 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginActivity : AppCompatActivity() {
 
-    private val INTERVALO = 2000
-    //private lateinit var tiempoPrimerClick : Long
+
 
     private val TAG = "Bryan"
     private val key = "Correo"
@@ -48,8 +47,6 @@ class LoginActivity : AppCompatActivity() {
 
         //PreferenceManager
         val prefs = getSharedPreferences("user", Context.MODE_PRIVATE)
-        prefs.getString("email","")
-        prefs.getString("password","")
         val editor = prefs.edit()
 
         loginBtn = findViewById(R.id.login_button)
@@ -64,8 +61,6 @@ class LoginActivity : AppCompatActivity() {
             .build()
 
         userService = retrofit.create(UsuarioApiService::class.java)
-
-        //pedirPermisos()
 
         correoET.setText(prefs.getString("email",""))
 
@@ -82,7 +77,7 @@ class LoginActivity : AppCompatActivity() {
 
             if(correoET.text.isEmpty() || passwordET.text.isEmpty())
             {
-                Toast.makeText(this@LoginActivity,"Por favor, complete los campos" ,Toast.LENGTH_LONG).show()
+                Toast.makeText(this@LoginActivity,"Complete los campos" ,Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
@@ -95,6 +90,7 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this@LoginActivity,"Correo o contraseña no existe" ,Toast.LENGTH_LONG).show()
                         return
                     }
+
                     token = response.headers().values("Authorization")[0]
 
                     Log.i("Bryan",token)
@@ -107,17 +103,25 @@ class LoginActivity : AppCompatActivity() {
                             Log.i(TAG,response.body().toString())
                             //Toast.makeText(this@LoginActivity, usuario!!.data.toString(),Toast.LENGTH_LONG).show()
 
+                            if (usuario!!.data.status == 0){
+                                Toast.makeText(this@LoginActivity, "La cuenta ha sido suspendida",Toast.LENGTH_LONG).show()
+                                return
+                            }
+
+
                             Toast.makeText(this@LoginActivity, "Inicio de Sesión Correcto",Toast.LENGTH_LONG).show()
+
 
 
                             editor.putString("idusuario",usuario!!.data.idusuario.toString())
                             editor.putString("email",correoET.text.toString())
                             editor.putString("password",passwordET.text.toString())
-                            editor.putString("name",usuario!!.data.firtsName + usuario!!.data.lastName)
+                            editor.putString("name",usuario!!.data.firtsName )
+                            editor.putString("apellido",usuario!!.data.lastName)
+                            editor.putInt("idrole",usuario!!.data.role.idrol)
                             editor.putString("role",usuario!!.data.role.role)
                             editor.putString("status", usuario!!.data.status.toString())
                             editor.apply()
-
 
 
                             val i = Intent(this@LoginActivity, MainActivity::class.java)

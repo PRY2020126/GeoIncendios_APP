@@ -57,6 +57,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="15dp"
                     android:ems="10"
+                    android:inputType="textPersonName"
                     android:hint="Nombres"
                     android:textSize="14sp" />
             </androidx.cardview.widget.CardView>
@@ -82,6 +83,8 @@
                     android:layout_marginHorizontal="15dp"
                     android:ems="10"
                     android:hint="Apellidos"
+                    android:inputType="text"
+
                     android:textSize="14sp" />
             </androidx.cardview.widget.CardView>
 
@@ -105,6 +108,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="15dp"
+                    android:inputType="textEmailAddress"
                     android:ems="10"
                     android:hint="Correo"
                     android:textSize="14sp" />
@@ -126,16 +130,26 @@
                 app:cardElevation="5dp"
                 app:cardPreventCornerOverlap="false">
 
-                <EditText
-                    android:id="@+id/et_register_contrasena"
-                    style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="15dp"
-                    android:ems="10"
-                    android:hint="Contraseña"
-                    android:inputType="textPassword"
-                    android:textSize="14sp" />
+                    android:layout_height="match_parent"
+                    app:hintEnabled="false"
+                    app:boxBackgroundMode="none"
+                    app:passwordToggleEnabled="true">
+                    <EditText
+                        android:id="@+id/et_register_contrasena"
+                        style="@style/Base.Widget.MaterialComponents.TextInputEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:ems="10"
+                        android:hint="Contraseña"
+
+                        android:inputType="textPassword"
+                        android:background="#FFFFFF"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

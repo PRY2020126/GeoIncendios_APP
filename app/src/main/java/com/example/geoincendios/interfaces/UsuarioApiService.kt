@@ -18,8 +18,8 @@ interface UsuarioApiService {
     @GET("users/{id}")
     fun getUserById(@Header("Authorization") authToken: String,@Path("id") id:Long): Call<Usuario>
 
-    @POST("users/{id}")
-    fun editarPerfil(@Header("Authorization") authToken: String,@Body usuario: Usuario): Call<Usuario>
+    @PUT("users")
+    fun editarPerfil(@Header("Authorization") authToken: String,@Body usuario: Usuario): Call<UserDTO>
 
 
     @GET("users")
@@ -30,6 +30,9 @@ interface UsuarioApiService {
 
     @POST("users/login")
     fun login(@Header("Authorization") authToken: String,@Body user: LoginDTO ): Call<UserDTO>
+
+
+
 
 
 

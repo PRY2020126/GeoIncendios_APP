@@ -46,10 +46,21 @@ class Splash_screen : AppCompatActivity() {
         iv_note.alpha =0f
 
         fun Ingresar(){
+
             val user = LoginDTO(email = email!!,password = pass!!)
             userService.login(token!!, user).enqueue(object : Callback<UserDTO> {
                 override fun onResponse(call: Call<UserDTO>, response: Response<UserDTO>) {
                     val usuario = response.body()
+
+                    if (usuario!!.data == null){
+                        editor.clear()
+                        editor.commit()
+                        starLogin()
+                        return
+                    }
+
+                    //Toast.makeText(this@Splash_screen, usuario.toString(), Toast.LENGTH_LONG).show()
+                    //Toast.makeText(this@Splash_screen, user.toString(), Toast.LENGTH_LONG).show()
                     Toast.makeText(this@Splash_screen, "Inicio de Sesión Correcto", Toast.LENGTH_LONG).show()
                     val i = Intent(this@Splash_screen, MainActivity::class.java)
                     startActivity(i)
@@ -63,7 +74,6 @@ class Splash_screen : AppCompatActivity() {
         }
 
 
-
         iv_note.animate().setDuration(700).alpha(1f).withEndAction(){
 
             if(email != "" && pass != "" && token!= "")
@@ -72,16 +82,19 @@ class Splash_screen : AppCompatActivity() {
             }
             else
             {
-                val i = Intent(this, LoginActivity::class.java)
-                startActivity(i)
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-                finish()
+                starLogin()
             }
-
         }
 
 
 
+    }
+
+    private fun starLogin(){
+        val i = Intent(this, LoginActivity::class.java)
+        startActivity(i)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        finish()
     }
 
 

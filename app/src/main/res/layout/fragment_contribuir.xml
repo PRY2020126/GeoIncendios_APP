@@ -44,9 +44,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Descripción:"
+                android:text="Descripción(opcional):"
                 android:textColor="#000000"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:textStyle="bold"></TextView>
             <EditText
                 android:id="@+id/et_descripcion_o_motivo_contribuir"
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:text="Motivo"
                 android:textColor="#000000"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 ></TextView>
             <Spinner
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:text="Selecciona la ubicación: "
                 android:textColor="#000000"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:textStyle="bold"
                 ></TextView>
 

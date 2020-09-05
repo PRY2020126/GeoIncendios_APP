@@ -3,8 +3,10 @@ package com.example.geoincendios.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,11 +31,14 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.widget.Autocomplete
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.*
 
 
 class ContribuirFragment : Fragment() {
@@ -46,7 +51,9 @@ class ContribuirFragment : Fragment() {
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
     private var mLastLocation: Location? = null
-
+    private lateinit var geocoder: Geocoder
+    private lateinit var places: Places
+    private lateinit var autocomplete: Autocomplete
     private lateinit var zonaContribuidaService: ZonaContribuidaApiService
 
     private lateinit var et_descripcion: EditText
@@ -68,14 +75,50 @@ class ContribuirFragment : Fragment() {
 
         googleMap.setOnMapClickListener {
             latLng = LatLng(it.latitude, it.longitude)
+            var addres :String ? = null
+
+            if (!geocoder.getFromLocation(it.latitude,it.longitude,1).isEmpty())
+            {
+                addres = geocoder.getFromLocation(it.latitude,it.longitude,1).get(0)!!.getAddressLine(0)!!.toString()
+                et_direccion.setText(addres)
+            }
+
+            else et_direccion.setText("Por favor marque un punto válido")
+            //Toast.makeText(context,addres,Toast.LENGTH_SHORT).show()
+
             if(punto == null){
-                punto = googleMap.addMarker(MarkerOptions().position(latLng!!).title(latLng.toString()).draggable(true))
+                punto = googleMap.addMarker(MarkerOptions().position(it!!).title(addres).draggable(true))
             }
             else
             {
-                punto!!.position = latLng
+                punto!!.position = it
             }
         }
+
+        googleMap.setOnMarkerDragListener(object :GoogleMap.OnMarkerDragListener{
+            override fun onMarkerDragEnd(p0: Marker?) {
+                var addres :String ? = null
+                if (!geocoder.getFromLocation(p0!!.position.latitude,p0!!.position.longitude,1).isEmpty())
+                {
+                    addres = geocoder.getFromLocation(p0!!.position.latitude,p0!!.position.longitude,1).get(0)!!.getAddressLine(0)!!.toString()
+                    et_direccion.setText(addres)
+                }
+                else et_direccion.setText("Por favor marque un punto válido")
+            }
+
+            override fun onMarkerDragStart(p0: Marker?) {
+            }
+
+            override fun onMarkerDrag(p0: Marker?) {
+            }
+
+        })
+
+
+
+        //geocoder.getFromLocationName(et_descripcion.text.toString(),1)
+
+
         val Lima = LatLng(-12.0554671, -77.0431111)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
     }
@@ -93,6 +136,7 @@ class ContribuirFragment : Fragment() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
+        geocoder = Geocoder(context, Locale.getDefault())
         punto = null
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
         zonaContribuidaService = retrofit.create(ZonaContribuidaApiService::class.java)
@@ -116,7 +160,7 @@ class ContribuirFragment : Fragment() {
 
         spn_motivos.setOnItemSelectedListener(object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View, position: Int, id: Long) {
-                Toast.makeText(activity,position.toString() +" "+ spn_motivos.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show()
+                //Toast.makeText(activity,position.toString() +" "+ spn_motivos.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show()
                 idreason = position
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -144,10 +188,9 @@ class ContribuirFragment : Fragment() {
 
         zonaContribuidaService.saveZonaContribuida(token,zonaContribuida).enqueue(object : Callback<Any> {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
-
                 val usuario = response.body()
                 Log.i("AHH",response.body().toString())
-                Toast.makeText(activity, response.body().toString(),Toast.LENGTH_LONG).show()
+                Toast.makeText(activity, "Se ha enviado su contribucion, gracias.",Toast.LENGTH_LONG).show()
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {

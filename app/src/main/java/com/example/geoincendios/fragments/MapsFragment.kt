@@ -7,6 +7,8 @@ import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +16,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
-import android.widget.ImageButton
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
@@ -36,6 +37,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import kotlinx.android.synthetic.main.fragment_maps.*
+import org.w3c.dom.Text
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -62,11 +64,13 @@ class MapsFragment : Fragment() {
     private var mLatitude: Double = 1.0
     private var mLongitude: Double = 1.0
 
+    private lateinit var searchText : EditText
+    private lateinit var autocompleteFragment :AutocompleteSupportFragment
+
+    //private lateinit var btn_guardar: Button
+
     private lateinit var imgBtn_recargar: ImageButton
 
-    // private var zoom = 0f
-
-    //private lateinit var autoCompleteSuport :AutocompleteSupportFragment
 
 
 
@@ -76,6 +80,22 @@ class MapsFragment : Fragment() {
         googleMap.uiSettings.isMyLocationButtonEnabled = true
         googleMap.uiSettings.isMapToolbarEnabled = true
         //var miLocation = LatLng(mLatitude,mLongitude)
+
+        googleMap.setInfoWindowAdapter( object : GoogleMap.InfoWindowAdapter{
+            override fun getInfoContents(p0: Marker?): View {
+                    val v = layoutInflater.inflate(R.layout.marker,null)
+                    val title = v.findViewById(R.id.marker_title) as TextView
+                    title.setText(p0!!.title)
+                    val btn_guardar = v.findViewById<Button>(R.id.btn_guardar_marker)
+                    btn_guardar.setOnClickListener {
+                        Toast.makeText(activity!!, p0!!.title.toString() + p0.position.toString(), Toast.LENGTH_LONG).show()
+                    }
+                    return v
+            }
+            override fun getInfoWindow(p0: Marker?): View? {
+                return null
+            }
+        })
 
         googleMap.setMaxZoomPreference(18f)
 
@@ -88,24 +108,6 @@ class MapsFragment : Fragment() {
     }
 
 
-
-
-    @SuppressLint("MissingPermission")
-    private fun getLastLocation() {
-        mFusedLocationClient!!.lastLocation
-            .addOnCompleteListener(activity!!) { task ->
-                if (task.isSuccessful && task.result != null) {
-                    mLastLocation = task.result
-                    mLatitude =  mLastLocation!!.latitude
-                    mLongitude = mLastLocation!!.longitude
-
-                } else {
-                    Log.w("AEA", "getLastLocation:exception", task.exception)
-                }
-            }
-    }
-
-
     @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_maps,container,false)
@@ -114,6 +116,8 @@ class MapsFragment : Fragment() {
 
         val prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         com.google.android.libraries.places.api.Places.initialize(context!!, context!!.resources.getString(R.string.google_maps_key) )
+
+
         token = prefs.getString("token","")
         listMarcadores = arrayListOf()
         markList = arrayListOf()
@@ -121,8 +125,6 @@ class MapsFragment : Fragment() {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
 
         //getLastLocation()
-
-
 
         return view
 
@@ -180,11 +182,14 @@ class MapsFragment : Fragment() {
                     smallMaker= Bitmap.createScaledBitmap(bitmap,100,100,false)
 
                     val marker = MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMaker))
-                        .position(LatLng(item.latitude,item.longitude)).title(item.name).anchor(0.5f,0.5f).flat(false).snippet(item.address)
-
+                        .position(LatLng(item.latitude,item.longitude)).title(item.address).anchor(0.5f,0.5f).flat(false)
+                    if(item.name != "") {
+                        marker.snippet(item.name)
+                    }
                     listMarcadores.add(marker)
-                }
 
+                }
+                Log.i("Marcadores",listMarcadores.toString())
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     for (item in listMarcadores){
                         markList.add(googleMap.addMarker(item))
@@ -208,14 +213,16 @@ class MapsFragment : Fragment() {
 
     private fun Buscador( mapFragment: SupportMapFragment){
         // Initialize the AutocompleteSupportFragment.
-        val autocompleteFragment =
-            childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
-                    as AutocompleteSupportFragment
+        val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
 
         // Specify the types of place data to return.
         autocompleteFragment.setPlaceFields(listOf(com.google.android.libraries.places.api.model.Place.Field.LAT_LNG,
             com.google.android.libraries.places.api.model.Place.Field.NAME))
+        autocompleteFragment.setCountry("pe")
+
+        val searchBar =  autocompleteFragment.view!!.findViewById<EditText>(R.id.places_autocomplete_search_input)
         var last : Marker? = null
+        var buscado : Boolean  = false
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
@@ -225,11 +232,13 @@ class MapsFragment : Fragment() {
                 {
                     last!!.remove()
                     last = null
+                    buscado = false
                 }
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     last = googleMap.addMarker(MarkerOptions().position(place.latLng!!).title(place.name))
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng,13f))
                 })
+                buscado = true
             }
 
             override fun onError(status: Status) {
@@ -238,9 +247,23 @@ class MapsFragment : Fragment() {
             }
         })
 
+        searchBar.addTextChangedListener(object :TextWatcher{
+            override fun afterTextChanged(p0: Editable?) {
+                if(searchBar.text.isBlank() && buscado)
+                {
+                    last!!.remove()
+                    last = null
+                    buscado = false
+                    Log.i("Se limpio","AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                }
+            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+        })
 
     }
-
 
 
     fun resizeMarks(googleMap: GoogleMap) {

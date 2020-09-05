@@ -5,7 +5,9 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
-
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
     defaultConfig {
         applicationId "com.example.geoincendios"
         minSdkVersion 21
@@ -47,7 +49,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     //extras
     implementation 'com.emmanuelkehinde:shutdown:1.0.1'
-
+    implementation 'com.appolica:interactive-info-window:v1.0.6'
 
 
 

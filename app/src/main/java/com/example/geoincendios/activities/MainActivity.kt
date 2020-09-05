@@ -2,9 +2,12 @@ package com.example.geoincendios.activities
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private var currentTag: String = TAG_ONE
     private var oldTag: String = TAG_ONE
     private var currentMenuItemId: Int = R.id.navigationHome
+    private lateinit var btnImgRefresh : ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -67,16 +71,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
+
+        btnImgRefresh = findViewById(R.id.imgBtn_recargar)
+
         bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
 
             if (currentMenuItemId != menuItem.itemId) {
                 currentMenuItemId = menuItem.itemId
 
                 when (currentMenuItemId) {
-                    R.id.navigationHome -> changeFragment(TAG_ONE, MapsFragment.newInstance())
-                    R.id.navigationContribuir -> changeFragment(TAG_SECOND, ContribuirFragment.newInstance())
-                    R.id.navigationGuardado -> changeFragment(TAG_THIRD, GuardadosFragment.newInstance())
-                    R.id.navigationPerfil -> changeFragment(TAG_FOURTH, PerfilFragment.newInstance())
+                    R.id.navigationHome -> {changeFragment(TAG_ONE, MapsFragment.newInstance()); btnImgRefresh.visibility = View.VISIBLE}
+                    R.id.navigationContribuir -> {changeFragment(TAG_SECOND, ContribuirFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
+                    R.id.navigationGuardado -> {changeFragment(TAG_THIRD, GuardadosFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
+                    R.id.navigationPerfil -> {changeFragment(TAG_FOURTH, PerfilFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
                 }
 
                 return@setOnNavigationItemSelectedListener true
@@ -151,11 +158,9 @@ class MainActivity : AppCompatActivity() {
             currentTag = listState.last().currentFragmentTag
             oldTag = listState.last().oldFragmentTag
         }
-        updateLog()
+
     }
 
-    private fun updateLog() {
-    }
 
     private fun setMenuItem(menuItem: MenuItem) {
         menuItem.isChecked = true
@@ -173,7 +178,7 @@ class MainActivity : AppCompatActivity() {
 
     //Like YouTube
     private fun addBackStack() {
-        updateLog()
+
 
         when (listState.size) {
             MAX_HISTORIC -> {

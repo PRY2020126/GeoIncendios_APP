@@ -3,6 +3,7 @@ package com.example.geoincendios.interfaces
 import com.example.geoincendios.models.DTO.LoginDTO
 import com.example.geoincendios.models.DTO.ResponseDTO
 import com.example.geoincendios.models.DTO.UserDTO
+import com.example.geoincendios.models.Email
 import com.example.geoincendios.models.Usuario
 import retrofit2.Call
 import retrofit2.http.*
@@ -10,7 +11,7 @@ import retrofit2.http.*
 interface UsuarioApiService {
 
     @POST("users")
-    fun saveUser(@Body usuario: Usuario): Call<Any>
+    fun saveUser(@Body usuario: Usuario): Call<UserDTO>
 
     @GET("users")
     fun getUsers(@Header("Authorization") authToken: String): Call<Usuario>
@@ -30,6 +31,9 @@ interface UsuarioApiService {
 
     @POST("users/login")
     fun login(@Header("Authorization") authToken: String,@Body user: LoginDTO ): Call<UserDTO>
+
+    @POST("email/recover-password")
+    fun recuperar_contrasena(@Body email: Email ): Call<Any>
 
 
 

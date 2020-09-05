@@ -104,7 +104,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ingresar"
-                android:layout_marginVertical="25dp"
+                android:layout_marginVertical="15dp"
                 android:textColor="#FFFF"
                 android:layout_marginHorizontal="20dp"/>
 
@@ -113,9 +113,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="20dp"
-                android:layout_marginVertical="10dp"
+                android:layout_marginVertical="15dp"
                 android:text="Registrate"
                 android:textColor="#FFFF" />
+
+        <TextView
+            android:id="@+id/tv_recuperar_contrasena"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Has olvidado tu contraseña?"
+            android:textColor="@android:color/holo_blue_light"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:autoLink="web">
+        </TextView>
+
 
         </LinearLayout>
     </LinearLayout>

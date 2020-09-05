@@ -3,7 +3,9 @@
 <string-array name="Motivos">
     <item>--Selecciona un motivo--</item>
     <item >Edificación</item>
-    <item>Número de Incendios</item>
-    <item></item>
+    <item>Cantidad de Incendios</item>
+    <item>Falta de Permisos</item>
+    <item>Uso de Material Infamable</item>
+    <item>Otros</item>
 </string-array>
 </resources>

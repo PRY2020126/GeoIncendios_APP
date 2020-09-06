@@ -19,6 +19,8 @@ import com.example.geoincendios.fragments.GuardadosFragment
 import com.example.geoincendios.fragments.MapsFragment
 import com.example.geoincendios.fragments.PerfilFragment
 import com.example.geoincendios.util.StateFragment
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val TAG_ONE = "first"
@@ -28,7 +30,7 @@ private const val TAG_FOURTH = "fourth"
 private const val MAX_HISTORIC = 5
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener {
 
     private val listState = mutableListOf<StateFragment>()
     private var currentTag: String = TAG_ONE
@@ -201,6 +203,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
+    override fun onItemClick() {
+        changeFragment(TAG_ONE, MapsFragment.newInstance())
+        val menu = bottomNavigationView.menu
+        setMenuItem(menu.getItem(0))
+        val a = supportFragmentManager.findFragmentByTag(currentTag) as MapsFragment
+        a.mover()
+    }
 
 
 }

@@ -2,6 +2,7 @@ package com.example.geoincendios.activities
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -219,21 +220,30 @@ class LoginActivity : AppCompatActivity() {
         emailService.recuperar_contrasena(Correo).enqueue(object : Callback<Any> {
 
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                Log.i("AHHH", Correo.toString())
                 val usuario = response.body()
                 Log.i("AHHH", usuario.toString())
-
+                showDialog()
             }
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.i("AHHH", "MAaaaal")
             }
         })
-
     }
-
-
     fun validarEmail( email : String): Boolean{
         val pattern = Patterns.EMAIL_ADDRESS;
         return pattern.matcher(email).matches();
     }
+
+    fun showDialog(){
+    val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmación")
+        builder.setMessage("Por favor verifica tu correo electronico, en unos instantes llegara el mensaje")
+        builder.setPositiveButton("si", DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        }).show()
+    }
+
+
 }
 

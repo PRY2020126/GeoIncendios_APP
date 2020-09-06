@@ -2,6 +2,7 @@ package com.example.geoincendios.fragments
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
@@ -18,10 +19,15 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.appolica.interactiveinfowindow.InfoWindow
+import com.appolica.interactiveinfowindow.InfoWindowManager
+import com.appolica.interactiveinfowindow.fragment.MapInfoWindowFragment
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
 import com.example.geoincendios.models.DTO.ZonaRiesgoDTO
 import com.example.geoincendios.models.ZonaRiesgo
+import com.example.geoincendios.persistence.DatabaseHandler
+import com.example.geoincendios.persistence.ZonaRiesgoBD
 import com.example.geoincendios.util.URL_API
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -36,15 +42,12 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import kotlinx.android.synthetic.main.fragment_maps.*
-import org.w3c.dom.Text
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
-import kotlin.concurrent.timer
+import java.lang.RuntimeException
 import kotlin.math.abs
 
 class MapsFragment : Fragment() {
@@ -69,10 +72,13 @@ class MapsFragment : Fragment() {
 
     //private lateinit var btn_guardar: Button
 
+    private lateinit var db : DatabaseHandler
+
     private lateinit var imgBtn_recargar: ImageButton
 
+    private lateinit var prefs: SharedPreferences
 
-
+    private var listener : GuardadosFragment.BackPressedListener? = null
 
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
@@ -87,9 +93,6 @@ class MapsFragment : Fragment() {
                     val title = v.findViewById(R.id.marker_title) as TextView
                     title.setText(p0!!.title)
                     val btn_guardar = v.findViewById<Button>(R.id.btn_guardar_marker)
-                    btn_guardar.setOnClickListener {
-                        Toast.makeText(activity!!, p0!!.title.toString() + p0.position.toString(), Toast.LENGTH_LONG).show()
-                    }
                     return v
             }
             override fun getInfoWindow(p0: Marker?): View? {
@@ -97,12 +100,15 @@ class MapsFragment : Fragment() {
             }
         })
 
-        googleMap.setMaxZoomPreference(18f)
+        googleMap.setOnInfoWindowClickListener {
+            var zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString())
+            db.insertData(zona)
+        }
 
+        googleMap.setMaxZoomPreference(18f)
         googleMap.setOnCameraMoveListener {
             resizeMarks(googleMap)
         }
-
         val Lima = LatLng(-12.0554671, -77.0431111)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
     }
@@ -111,18 +117,18 @@ class MapsFragment : Fragment() {
     @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_maps,container,false)
+        db = DatabaseHandler(context!!)
 
         imgBtn_recargar = activity!!.findViewById(R.id.imgBtn_recargar)
 
-        val prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
+        prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         com.google.android.libraries.places.api.Places.initialize(context!!, context!!.resources.getString(R.string.google_maps_key) )
-
-
         token = prefs.getString("token","")
         listMarcadores = arrayListOf()
         markList = arrayListOf()
         zonasRiesgoList = arrayListOf()
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
+
 
         //getLastLocation()
 
@@ -133,8 +139,10 @@ class MapsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+
         mapFragment?.getMapAsync(callback)
-        Traer_Marcadores(token!!,mapFragment!!)
+
+       Traer_Marcadores(token!!,mapFragment!!)
         Buscador(mapFragment!!)
 
         imgBtn_recargar.setOnClickListener {
@@ -171,7 +179,7 @@ class MapsFragment : Fragment() {
 
                 for (item in zonas!!.data){
                     zonasRiesgoList.add(item)
-                    when(item.type.idtipo)
+                    when(item.type!!.idtipo)
                     {
                         1 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_foreground) as BitmapDrawable }
                         2 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_medio_foreground) as BitmapDrawable}
@@ -182,7 +190,7 @@ class MapsFragment : Fragment() {
                     smallMaker= Bitmap.createScaledBitmap(bitmap,100,100,false)
 
                     val marker = MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMaker))
-                        .position(LatLng(item.latitude,item.longitude)).title(item.address).anchor(0.5f,0.5f).flat(false)
+                        .position(LatLng(item.latitude!!,item.longitude!!)).title(item.address).anchor(0.5f,0.5f).flat(false)
                     if(item.name != "") {
                         marker.snippet(item.name)
                     }
@@ -274,17 +282,17 @@ class MapsFragment : Fragment() {
         val zoom =  googleMap.cameraPosition.zoom
         if (zoomGlobal==0f)zoomGlobal = zoom
 
-        Log.i("Zoom",zoom.toString())
+        //Log.i("Zoom",zoom.toString())
         //Toast.makeText(activity, googleMap.cameraPosition.zoom.toString(), Toast.LENGTH_SHORT).show()
 
 
 
         var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.45,zoom.toDouble()));
-        Log.i("RelativePixesSize",relativePixelSize.toString())
+        //Log.i("RelativePixesSize",relativePixelSize.toString())
         if (relativePixelSize > maxPixelSize)
         {
             //relativePixelSize = maxPixelSize.toLong()
-            Log.i("RelativePixesSizeNuevo",relativePixelSize.toString())
+            //Log.i("RelativePixesSizeNuevo",relativePixelSize.toString())
         }
 
 
@@ -298,10 +306,10 @@ class MapsFragment : Fragment() {
 
 
             zoomGlobal = zoom
-            Log.i("Zoom","redibujandoooooooooooooooooooooooooooooooooooooooooooooooooooooo")
+            //Log.i("Zoom","redibujandoooooooooooooooooooooooooooooooooooooooooooooooooooooo")
             for (marker in markList)
             {
-                when (zonasRiesgoList[markList.indexOf(marker)].type.idtipo){
+                when (zonasRiesgoList[markList.indexOf(marker)].type!!.idtipo){
                     1-> {  bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_foreground) as BitmapDrawable }
                     2-> {  bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_medio_foreground) as BitmapDrawable  }
                     3-> {  bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_bajo_foreground) as BitmapDrawable }
@@ -332,6 +340,16 @@ class MapsFragment : Fragment() {
 
     }
 
+
+    fun mover(){
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        val idmarker = prefs.getInt("idmarker",0)
+        Log.i("IDMARKER", idmarker.toString())
+        mapFragment?.getMapAsync({ googleMap ->
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markList.get(idmarker).position,16f))
+            markList[idmarker].showInfoWindow()
+        })
+    }
 
 }
 

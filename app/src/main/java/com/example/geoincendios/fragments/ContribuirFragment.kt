@@ -1,12 +1,15 @@
 package com.example.geoincendios.fragments
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
+import android.content.DialogInterface
+import android.graphics.Paint
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,10 +18,7 @@ import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.fragment.app.Fragment
 import com.example.geoincendios.R
-import com.example.geoincendios.activities.MainActivity
-import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.interfaces.ZonaContribuidaApiService
-import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Reason
 import com.example.geoincendios.models.ZonaContribuida
 import com.example.geoincendios.util.URL_API
@@ -57,7 +57,7 @@ class ContribuirFragment : Fragment() {
     private lateinit var zonaContribuidaService: ZonaContribuidaApiService
 
     private lateinit var et_descripcion: EditText
-    private lateinit var et_direccion: EditText
+    private lateinit var et_direccion: TextView
     private lateinit var btn_enviar: Button
 
     private  var punto : Marker? = null
@@ -114,10 +114,7 @@ class ContribuirFragment : Fragment() {
 
         })
 
-
-
         //geocoder.getFromLocationName(et_descripcion.text.toString(),1)
-
 
         val Lima = LatLng(-12.0554671, -77.0431111)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
@@ -147,9 +144,17 @@ class ContribuirFragment : Fragment() {
 
 
         btn_enviar.setOnClickListener {
-            enviarZonaContribuida()
+            if (idreason == 0){
+                Toast.makeText(activity,"Por favor seleccione un motivo", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if(punto == null)
+            {
+                Toast.makeText(activity,"Por favor seleccione un punto", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            mostrarDialogo()
         }
-
         return view
     }
 
@@ -169,43 +174,48 @@ class ContribuirFragment : Fragment() {
 
     fun enviarZonaContribuida(){
 
-        if (idreason == 0){
-            Toast.makeText(activity,"Por favor seleccione un motivo", Toast.LENGTH_SHORT).show()
-            return
-        }
-        if(punto == null)
-        {
-            Toast.makeText(activity,"Por favor seleccione un punto", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-
         var zonaContribuida = ZonaContribuida(idzona=0, address = et_direccion.text.toString(),description = et_descripcion.text.toString(),
             latitude =latLng!!.latitude.toString(),longitude = latLng!!.longitude.toString(),reason = Reason(idreason,""))
 
-        //Toast.makeText(activity, zonaContribuida.toString(), Toast.LENGTH_LONG).show()
-        //return
 
         zonaContribuidaService.saveZonaContribuida(token,zonaContribuida).enqueue(object : Callback<Any> {
+            @SuppressLint("SetTextI18n")
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 val usuario = response.body()
                 Log.i("AHH",response.body().toString())
-                Toast.makeText(activity, "Se ha enviado su contribucion, gracias.",Toast.LENGTH_LONG).show()
+                et_direccion.setPaintFlags(View.INVISIBLE)
+                et_direccion.text = "Seleccione un punto para obtener la dirección"
+                et_descripcion.setText("")
+                et_descripcion.setHint("Describa el porque considera zona de Riesgo")
+                spn_motivos.setSelection(0)
+                punto!!.remove()
+                punto = null
+                Toast.makeText(activity, "Se ha enviado su contribución, gracias.",Toast.LENGTH_LONG).show()
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.i("AHHH", "MAaaaal")
+                Toast.makeText(activity, "Ha ocurrido un error al enviar su contribución, inténtenlo mas tarde",Toast.LENGTH_LONG).show()
             }
         })
-
-
     }
 
-
+    fun mostrarDialogo(){
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Advertencia")
+            builder.setMessage("Al enviar una contribución irrelevante, esto puede ocasionar un bloqueo de su cuenta.")
+            builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
+                enviarZonaContribuida()
+                dialogInterface.dismiss()
+            })
+            builder.setNegativeButton("Cerrar", {dialogInterface, i ->
+                dialogInterface.dismiss()
+            })
+            builder.show()
+    }
 
     companion object{
         @JvmStatic
         fun newInstance() = ContribuirFragment()
     }
-
 }

@@ -33,7 +33,7 @@ interface UsuarioApiService {
     fun login(@Header("Authorization") authToken: String,@Body user: LoginDTO ): Call<UserDTO>
 
     @POST("email/recover-password")
-    fun recuperar_contrasena(@Body email: Email ): Call<Any>
+    fun recuperar_contrasena(@Body email: Email ): Call<ResponseDTO>
 
 
 

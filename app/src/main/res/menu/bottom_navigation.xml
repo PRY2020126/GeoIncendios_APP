@@ -10,12 +10,11 @@
         android:title="@string/contribuir"></item>
 
     <item android:id="@+id/navigationGuardado"
-        android:icon="@drawable/ic_location"
+        android:icon="@drawable/ic_saved"
         android:title="@string/guardado"></item>
 
     <item android:id="@+id/navigationPerfil"
         android:icon="@drawable/ic_account"
         android:title="@string/perfil"></item>
-
 
 </menu>

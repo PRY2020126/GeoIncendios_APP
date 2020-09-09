@@ -49,6 +49,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.RuntimeException
 import kotlin.math.abs
+import kotlin.math.log
 
 class MapsFragment : Fragment() {
 
@@ -91,6 +92,13 @@ class MapsFragment : Fragment() {
             override fun getInfoContents(p0: Marker?): View {
                     val v = layoutInflater.inflate(R.layout.marker,null)
                     val title = v.findViewById(R.id.marker_title) as TextView
+                    val detalles = v.findViewById(R.id.marker_snniped) as TextView
+                    //Log.i("detalle", p0!!.snippet.toString())
+
+                    if(p0!!.snippet.isNullOrEmpty()){
+                        detalles.visibility = View.GONE
+                    }
+                    else detalles.setText(p0!!.snippet)
                     title.setText(p0!!.title)
                     val btn_guardar = v.findViewById<Button>(R.id.btn_guardar_marker)
                     return v
@@ -176,7 +184,6 @@ class MapsFragment : Fragment() {
 
                 if (zonas == null)return
 
-
                 for (item in zonas!!.data){
                     zonasRiesgoList.add(item)
                     when(item.type!!.idtipo)
@@ -187,7 +194,11 @@ class MapsFragment : Fragment() {
                         else -> { }
                     }
                     bitmap = bitmapdraw!!.bitmap
-                    smallMaker= Bitmap.createScaledBitmap(bitmap,100,100,false)
+
+                    var relativePixelSize : Long = 100
+                    if(zoomGlobal != 0f)  relativePixelSize = Math.round(2*Math.pow(1.4, zoomGlobal.toDouble()))
+
+                    smallMaker= Bitmap.createScaledBitmap(bitmap,relativePixelSize.toInt(),relativePixelSize.toInt(),false)
 
                     val marker = MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMaker))
                         .position(LatLng(item.latitude!!,item.longitude!!)).title(item.address).anchor(0.5f,0.5f).flat(false)
@@ -204,7 +215,6 @@ class MapsFragment : Fragment() {
                     }
                 })
             }
-
             override fun onFailure(call: Call<ZonaRiesgoDTO>, t: Throwable) {
                 Log.i("AAAA", "MAaaaal")
             }
@@ -244,7 +254,18 @@ class MapsFragment : Fragment() {
                 }
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     last = googleMap.addMarker(MarkerOptions().position(place.latLng!!).title(place.name))
+                    googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
+                        override fun onMarkerClick(p0: Marker?): Boolean {
+                            if (p0 == last)
+                            {
+                                return true
+                            }
+                            return false
+                        }
+                    })
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng,13f))
+
+
                 })
                 buscado = true
             }
@@ -285,18 +306,14 @@ class MapsFragment : Fragment() {
         //Log.i("Zoom",zoom.toString())
         //Toast.makeText(activity, googleMap.cameraPosition.zoom.toString(), Toast.LENGTH_SHORT).show()
 
-
-
-        var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.45,zoom.toDouble()));
-        //Log.i("RelativePixesSize",relativePixelSize.toString())
+        var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.4,zoom.toDouble()));
         if (relativePixelSize > maxPixelSize)
         {
             //relativePixelSize = maxPixelSize.toLong()
             //Log.i("RelativePixesSizeNuevo",relativePixelSize.toString())
         }
 
-
-        if (abs(zoomGlobal - zoom) >= 0.5 )
+        if (abs(zoomGlobal - zoom) >= 1.0 )
         {
 
             var bitmapdraw :BitmapDrawable? = null

@@ -1,13 +1,18 @@
 package com.example.geoincendios.activities
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.media.Image
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,6 +43,9 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener 
     private var currentMenuItemId: Int = R.id.navigationHome
     private lateinit var btnImgRefresh : ImageButton
 
+    private lateinit var locatioManager: LocationManager
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -46,6 +54,13 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener 
             requestPermissionAndContinue()
         } //loadFirstFragment()
         val prefs = getSharedPreferences("user", Context.MODE_PRIVATE)
+
+        locatioManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+        {
+            AlertNoGps()
+        }
 
         init()
     }
@@ -163,7 +178,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener 
 
     }
 
-
     private fun setMenuItem(menuItem: MenuItem) {
         menuItem.isChecked = true
         currentMenuItemId = menuItem.itemId
@@ -203,8 +217,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener 
         }
     }
 
-
-
     override fun onItemClick() {
         changeFragment(TAG_ONE, MapsFragment.newInstance())
         val menu = bottomNavigationView.menu
@@ -213,5 +225,16 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener 
         a.mover()
     }
 
+    private fun  AlertNoGps(){
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("EL sistema GPS no esta activado,¿Desea Activarlo?")
+            .setCancelable(false)
+            .setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            })
+            .setNegativeButton("No",  { dialogInterface, i ->
+                dialogInterface.dismiss()
+            }).show()
+    }
 
 }

@@ -5,10 +5,12 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.geoincendios.R
@@ -16,6 +18,10 @@ import com.example.geoincendios.persistence.ClickListener
 import com.example.geoincendios.persistence.DatabaseHandler
 import com.example.geoincendios.persistence.ZonaRiesgoAdapter
 import com.example.geoincendios.persistence.ZonaRiesgoBD
+import com.google.android.material.bottomnavigation.BottomNavigationMenu
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_guardados.*
 import java.lang.ClassCastException
 import java.lang.RuntimeException
 
@@ -35,9 +41,15 @@ open class GuardadosFragment : Fragment() {
 
     var  backPressedListener : BackPressedListener? = null
 
+    private var currentItem = null
+
+    lateinit var guardadosZonaRiesgo: GuardadosZonaRiesgo
+    lateinit var guardadosPersonalizado: GuardadosPersonalizado
+
     interface BackPressedListener{
         fun onItemClick()
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -46,24 +58,29 @@ open class GuardadosFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         var view = inflater.inflate(R.layout.fragment_guardados, container, false)
-        prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
-        edit = prefs.edit()
-        db = DatabaseHandler(context!!)
-        guardados = db.readData()
 
-        RVGuardados = view.findViewById(R.id.rv_guardados)
-        layoutManager = LinearLayoutManager(context)
-        adaptador = ZonaRiesgoAdapter(guardados, object: ClickListener{
-            override fun onClick(view: View, position: Int) {
-                edit.putInt("idmarker",guardados[position].id)
-                edit.commit()
-                Log.i("Marcador",guardados[position].toString())
-                backPressedListener?.onItemClick()
+
+        guardadosZonaRiesgo = GuardadosZonaRiesgo()
+        fragmentManager!!.beginTransaction().replace(R.id.frame_layout_guardados, guardadosZonaRiesgo).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+
+
+        val topNavigationView = view.findViewById<BottomNavigationView>(R.id.topNavigationView)
+
+        topNavigationView.setOnNavigationItemSelectedListener { item ->
+
+            when (item.itemId){
+                R.id.sub_navigationZonasRiesgo -> {
+                    guardadosZonaRiesgo = GuardadosZonaRiesgo()
+                    fragmentManager!!.beginTransaction().replace(R.id.frame_layout_guardados, guardadosZonaRiesgo).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+                }
+                R.id.sub_navigationPersonalizados -> {
+                    guardadosPersonalizado = GuardadosPersonalizado()
+                    fragmentManager!!.beginTransaction().replace(R.id.frame_layout_guardados, guardadosPersonalizado).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+                }
             }
-        })
+            true
+        }
 
-        RVGuardados.layoutManager = layoutManager
-        RVGuardados.adapter = adaptador
         return view
     }
 
@@ -73,7 +90,7 @@ open class GuardadosFragment : Fragment() {
     }
 
 
-    override fun onHiddenChanged(hidden: Boolean) {
+    /*override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
         guardados = db.readData()
         adaptador = ZonaRiesgoAdapter(guardados, object: ClickListener{
@@ -86,14 +103,7 @@ open class GuardadosFragment : Fragment() {
         })
         RVGuardados.adapter = adaptador
     }
+*/
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is BackPressedListener){
-            backPressedListener = context as BackPressedListener
-        } else {
-            throw  RuntimeException(context.toString())
-        }
-    }
 
 }

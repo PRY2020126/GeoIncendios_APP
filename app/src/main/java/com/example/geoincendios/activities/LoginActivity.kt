@@ -19,6 +19,7 @@ import com.emmanuelkehinde.shutdown.Shutdown
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.models.DTO.LoginDTO
+import com.example.geoincendios.models.DTO.ResponseDTO
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Email
 import com.example.geoincendios.util.URL_API
@@ -160,7 +161,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Shutdown.now(this)
+        Shutdown.now(this, "Presione de nuevo para salir")
     }
 
     private fun mostrar_dialogo(){
@@ -190,12 +191,13 @@ class LoginActivity : AppCompatActivity() {
 
         btn_enviar_contra.setOnClickListener {
 
-            if(et_correo_recuperar.error.isNullOrEmpty()) {
+            if(et_correo_recuperar.error.isNullOrEmpty() && !et_correo_recuperar.text.isNullOrEmpty()) {
                 recuperarContrasena(et_correo_recuperar.text.toString())
-                dialog.dismiss()
+
+                //dialog.dismiss()
             }
             else {
-                Toast.makeText(this,"Ingrese un correo valido",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Ingrese un correo válido",Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -217,15 +219,22 @@ class LoginActivity : AppCompatActivity() {
 
         val Correo = Email(email = email)
 
-        emailService.recuperar_contrasena(Correo).enqueue(object : Callback<Any> {
+        emailService.recuperar_contrasena(Correo).enqueue(object : Callback<ResponseDTO> {
 
-            override fun onResponse(call: Call<Any>, response: Response<Any>) {
+            override fun onResponse(call: Call<ResponseDTO>, response: Response<ResponseDTO>) {
+                val error = response.body()
+
+                if (error!!.errorCode == "3")
+                {
+                    showDialogFalied()
+                }
+                if(error!!.errorCode == "0")
+                {
+                    showDialogSuccess()
+                }
                 Log.i("AHHH", Correo.toString())
-                val usuario = response.body()
-                Log.i("AHHH", usuario.toString())
-                showDialog()
             }
-            override fun onFailure(call: Call<Any>, t: Throwable) {
+            override fun onFailure(call: Call<ResponseDTO>, t: Throwable) {
                 Log.i("AHHH", "MAaaaal")
             }
         })
@@ -235,15 +244,23 @@ class LoginActivity : AppCompatActivity() {
         return pattern.matcher(email).matches();
     }
 
-    fun showDialog(){
+    fun showDialogSuccess(){
     val builder = AlertDialog.Builder(this)
         builder.setTitle("Confirmación")
-        builder.setMessage("Por favor verifica tu correo electronico, en unos instantes llegara el mensaje")
-        builder.setPositiveButton("si", DialogInterface.OnClickListener { dialogInterface, i ->
+        builder.setMessage("Por favor verifica tu correo electrónico, en unos instantes llegará el mensaje")
+        builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
             dialogInterface.dismiss()
         }).show()
     }
 
+    fun showDialogFalied(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmación")
+        builder.setMessage("El correo que has ingresado no se encuentra registrado")
+        builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        }).show()
+    }
 
 }
 

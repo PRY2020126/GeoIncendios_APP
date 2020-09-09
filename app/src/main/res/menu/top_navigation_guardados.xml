@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/sub_navigationZonasRiesgo"
+        android:icon="@drawable/ic_location_danger"
+        android:title="@string/submenu_guardado_riesgo"></item>
+
+    <item android:id="@+id/sub_navigationPersonalizados"
+        android:icon="@drawable/ic_location"
+        android:title="@string/submenu_guardado_personalizado"></item>
+</menu>

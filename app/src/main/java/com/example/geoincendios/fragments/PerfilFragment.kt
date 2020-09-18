@@ -15,6 +15,7 @@ import android.widget.*
 import com.example.geoincendios.R
 import com.example.geoincendios.activities.LoginActivity
 import com.example.geoincendios.activities.MainActivity
+import com.example.geoincendios.activities.RecomendacionesActivity
 import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
@@ -36,7 +37,8 @@ class PerfilFragment : Fragment() {
     private lateinit var tv_nombre : TextView
     private lateinit var tv_apellido : TextView
     private lateinit var tv_correo : TextView
-    private lateinit var btn_cerrar_sesion : Button
+    private lateinit var btn_cerrar_sesion : ImageButton
+    private lateinit var btn_recomendaciones : Button
     private lateinit var btn_cambiar_contrasena :Button
 
     private lateinit var et_new_password: EditText
@@ -77,12 +79,18 @@ class PerfilFragment : Fragment() {
         tv_apellido = view.findViewById(R.id.tv_apellido_perfil)
         tv_correo = view.findViewById(R.id.tv_correo_perfil)
         btn_cambiar_contrasena = view.findViewById(R.id.btn_editar_perfil)
+        btn_recomendaciones = view.findViewById(R.id.btn_recomendaciones)
 
         btn_cerrar_sesion = view.findViewById(R.id.btn_cerrar_sesion)
 
         tv_nombre.setText(prefs.getString("name",""))
         tv_apellido.setText(prefs.getString("apellido",""))
         tv_correo.setText(prefs.getString("email",""))
+
+        btn_recomendaciones.setOnClickListener {
+            val i = Intent(context, RecomendacionesActivity::class.java)
+            startActivity(i)
+        }
 
         btn_cerrar_sesion.setOnClickListener {
             edit.clear()

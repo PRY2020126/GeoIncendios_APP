@@ -22,7 +22,8 @@
         android:background="@color/colorPrimaryDark"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints"
+        android:layout_margin="0dp">
 
         <ImageView
             android:src="@drawable/logo"
@@ -30,7 +31,9 @@
             android:layout_height="50dp" />
         <TextView
             android:textColor="#fff"
-            android:text="GeoIncencios"
+            android:text=" GeoIncendios"
+            android:textStyle="bold"
+            android:textSize="25dp"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -53,7 +56,8 @@
         android:layout_width="match_parent"
         android:id="@+id/bottomNavigationView"
         app:menu="@menu/bottom_navigation"
-        android:layout_height="wrap_content"></com.google.android.material.bottomnavigation.BottomNavigationView>
+        android:layout_height="wrap_content"
+        app:labelVisibilityMode="labeled"></com.google.android.material.bottomnavigation.BottomNavigationView>
 
     <View
         android:id="@+id/viewDivider"

@@ -33,6 +33,8 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.widget.Autocomplete
+import org.eclipse.paho.android.service.MqttAndroidClient
+import org.eclipse.paho.client.mqttv3.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -62,6 +64,11 @@ class ContribuirFragment : Fragment() {
 
     private  var punto : Marker? = null
     private  var latLng : LatLng? = null
+
+
+    private lateinit var mqttClient: MqttAndroidClient
+    // TAG
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,8 +149,9 @@ class ContribuirFragment : Fragment() {
         et_direccion = view.findViewById(R.id.et_direccion_contribuir)
         spn_motivos =  view.findViewById(R.id.spn_motivos)
 
-
+        connect(context!!)
         btn_enviar.setOnClickListener {
+
             if (idreason == 0){
                 Toast.makeText(activity,"Por favor seleccione un motivo", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -177,10 +185,10 @@ class ContribuirFragment : Fragment() {
         var zonaContribuida = ZonaContribuida(idzona=0, address = et_direccion.text.toString(),description = et_descripcion.text.toString(),
             latitude =latLng!!.latitude.toString(),longitude = latLng!!.longitude.toString(),reason = Reason(idreason,""))
 
-
         zonaContribuidaService.saveZonaContribuida(token,zonaContribuida).enqueue(object : Callback<Any> {
             @SuppressLint("SetTextI18n")
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
+                publish("SGRI/ContZone","Notificacion")
                 val usuario = response.body()
                 Log.i("AHH",response.body().toString())
                 et_direccion.setPaintFlags(View.INVISIBLE)
@@ -214,8 +222,57 @@ class ContribuirFragment : Fragment() {
             builder.show()
     }
 
+
+    fun connect(context: Context) {
+        val serverURI = "wss://mqtt.eclipse.org:443/mqtt"
+        mqttClient = MqttAndroidClient(context, serverURI, "kotlin_client")
+        mqttClient.setCallback(object : MqttCallback {
+            override fun messageArrived(topic: String?, message: MqttMessage?) {
+                Log.d(TAG, "Receive message: ${message.toString()} from topic: $topic")
+            }
+            override fun connectionLost(cause: Throwable?) {
+                Log.d(TAG, "Connection lost ${cause.toString()}")
+            }
+            override fun deliveryComplete(token: IMqttDeliveryToken?) {
+            }
+        })
+        val options = MqttConnectOptions()
+        try {
+            mqttClient.connect(options, null, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Log.d(TAG, "Connection success")
+                }
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Log.d(TAG, "Connection failure")
+                }
+            })
+        } catch (e: MqttException) {
+            e.printStackTrace()
+        }
+    }
+
+    fun publish(topic: String, msg: String, qos: Int = 1, retained: Boolean = false) {
+        try {
+            val message = MqttMessage()
+            message.payload = msg.toByteArray()
+            message.qos = qos
+            message.isRetained = retained
+            mqttClient.publish(topic, message, null, object : IMqttActionListener {
+                override fun onSuccess(asyncActionToken: IMqttToken?) {
+                    Log.d(TAG, "$msg published to $topic")
+                }
+                override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                    Log.d(TAG, "Failed to publish $msg to $topic")
+                }
+            })
+        } catch (e: MqttException) {
+            e.printStackTrace()
+        }
+    }
+
     companion object{
         @JvmStatic
         fun newInstance() = ContribuirFragment()
+        const val TAG = "AndroidMqttClient"
     }
 }

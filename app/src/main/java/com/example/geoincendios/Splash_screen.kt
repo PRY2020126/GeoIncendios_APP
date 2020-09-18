@@ -52,7 +52,7 @@ class Splash_screen : AppCompatActivity() {
                 override fun onResponse(call: Call<UserDTO>, response: Response<UserDTO>) {
                     val usuario = response.body()
 
-                    if (usuario!!.data == null){
+                    if (usuario?.data == null){
                         editor.clear()
                         editor.commit()
                         starLogin()
@@ -68,6 +68,11 @@ class Splash_screen : AppCompatActivity() {
                 }
                 override fun onFailure(call: Call<UserDTO>, t: Throwable) {
                     Log.i("AMM", "MAaaaal")
+                    Toast.makeText(this@Splash_screen, "Ha ocurrido un error en el servidor", Toast.LENGTH_LONG).show()
+                    editor.clear()
+                    editor.commit()
+                    starLogin()
+                    return
                 }
             })
 

@@ -61,17 +61,9 @@ class MapsFragment : Fragment() {
     private var token : String? = null
 
     private var mFusedLocationClient: FusedLocationProviderClient? = null
-    protected var mLastLocation: Location? = null
 
     private  var zoomGlobal = 0f
 
-    private var mLatitude: Double = 1.0
-    private var mLongitude: Double = 1.0
-
-    private lateinit var searchText : EditText
-    private lateinit var autocompleteFragment :AutocompleteSupportFragment
-
-    //private lateinit var btn_guardar: Button
 
     private lateinit var db : DatabaseHandler
 
@@ -81,13 +73,29 @@ class MapsFragment : Fragment() {
 
     private var listener : GuardadosFragment.BackPressedListener? = null
 
+    var markerZonaPer : MarkerOptions? = null
+    var last : Marker? = null
+
+    var riesgoArray : MutableList<Int> = arrayListOf()
+
+
+    private  var miLocation : FusedLocationProviderClient? = null
+
+
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         googleMap.isMyLocationEnabled = true
         googleMap.uiSettings.isMyLocationButtonEnabled = true
         googleMap.uiSettings.isMapToolbarEnabled = true
-        //var miLocation = LatLng(mLatitude,mLongitude)
 
+        var mylocation : LatLng? = null
+        miLocation!!.lastLocation.addOnSuccessListener { location ->
+            mylocation = LatLng(location.latitude,location.longitude)
+        }
+        googleMap.setOnMyLocationButtonClickListener {
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16.0f))
+            true
+        }
         googleMap.setInfoWindowAdapter( object : GoogleMap.InfoWindowAdapter{
             override fun getInfoContents(p0: Marker?): View {
                     val v = layoutInflater.inflate(R.layout.marker,null)
@@ -99,6 +107,7 @@ class MapsFragment : Fragment() {
                         detalles.visibility = View.GONE
                     }
                     else detalles.setText(p0!!.snippet)
+
                     title.setText(p0!!.title)
                     val btn_guardar = v.findViewById<Button>(R.id.btn_guardar_marker)
                     return v
@@ -109,11 +118,19 @@ class MapsFragment : Fragment() {
         })
 
         googleMap.setOnInfoWindowClickListener {
-            var zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString())
-            db.insertData(zona)
+            if(it == last)
+            {
+                val zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString(),0)
+                db.insertDataPer(zona)
+            }
+            else {
+                val zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString(),riesgoArray[markList.indexOf(it)])
+                db.insertData(zona)
+            }
         }
 
         googleMap.setMaxZoomPreference(18f)
+        googleMap.setMinZoomPreference(10.5f)
         googleMap.setOnCameraMoveListener {
             resizeMarks(googleMap)
         }
@@ -126,19 +143,16 @@ class MapsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_maps,container,false)
         db = DatabaseHandler(context!!)
-
+        miLocation = LocationServices.getFusedLocationProviderClient(context!!)
         imgBtn_recargar = activity!!.findViewById(R.id.imgBtn_recargar)
-
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
         prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         com.google.android.libraries.places.api.Places.initialize(context!!, context!!.resources.getString(R.string.google_maps_key) )
         token = prefs.getString("token","")
         listMarcadores = arrayListOf()
         markList = arrayListOf()
         zonasRiesgoList = arrayListOf()
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
-
-
-        //getLastLocation()
+        riesgoArray = arrayListOf()
 
         return view
 
@@ -182,15 +196,16 @@ class MapsFragment : Fragment() {
                 var bitmap:Bitmap
                 var smallMaker :Bitmap
 
+                var zonacolor = 0
                 if (zonas == null)return
 
                 for (item in zonas!!.data){
                     zonasRiesgoList.add(item)
                     when(item.type!!.idtipo)
                     {
-                        1 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_foreground) as BitmapDrawable }
-                        2 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_medio_foreground) as BitmapDrawable}
-                        3 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_bajo_foreground) as BitmapDrawable }
+                        1 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_foreground) as BitmapDrawable; zonacolor = 1 }
+                        2 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_medio_foreground) as BitmapDrawable; zonacolor = 2}
+                        3 -> { bitmapdraw = resources.getDrawable(R.mipmap.ic_riesgo_bajo_foreground) as BitmapDrawable; zonacolor = 3 }
                         else -> { }
                     }
                     bitmap = bitmapdraw!!.bitmap
@@ -206,12 +221,14 @@ class MapsFragment : Fragment() {
                         marker.snippet(item.name)
                     }
                     listMarcadores.add(marker)
+                    riesgoArray.add(zonacolor)
 
                 }
                 Log.i("Marcadores",listMarcadores.toString())
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     for (item in listMarcadores){
                         markList.add(googleMap.addMarker(item))
+
                     }
                 })
             }
@@ -239,7 +256,7 @@ class MapsFragment : Fragment() {
         autocompleteFragment.setCountry("pe")
 
         val searchBar =  autocompleteFragment.view!!.findViewById<EditText>(R.id.places_autocomplete_search_input)
-        var last : Marker? = null
+
         var buscado : Boolean  = false
 
         // Set up a PlaceSelectionListener to handle the response.
@@ -258,7 +275,7 @@ class MapsFragment : Fragment() {
                         override fun onMarkerClick(p0: Marker?): Boolean {
                             if (p0 == last)
                             {
-                                return true
+                                return false
                             }
                             return false
                         }
@@ -303,7 +320,7 @@ class MapsFragment : Fragment() {
         val zoom =  googleMap.cameraPosition.zoom
         if (zoomGlobal==0f)zoomGlobal = zoom
 
-        //Log.i("Zoom",zoom.toString())
+        Log.i("Zoom",zoom.toString())
         //Toast.makeText(activity, googleMap.cameraPosition.zoom.toString(), Toast.LENGTH_SHORT).show()
 
         var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.4,zoom.toDouble()));
@@ -319,9 +336,6 @@ class MapsFragment : Fragment() {
             var bitmapdraw :BitmapDrawable? = null
             var bitmap :Bitmap
             var smallMaker :Bitmap
-
-
-
             zoomGlobal = zoom
             //Log.i("Zoom","redibujandoooooooooooooooooooooooooooooooooooooooooooooooooooooo")
             for (marker in markList)
@@ -363,10 +377,29 @@ class MapsFragment : Fragment() {
         val idmarker = prefs.getInt("idmarker",0)
         Log.i("IDMARKER", idmarker.toString())
         mapFragment?.getMapAsync({ googleMap ->
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markList.get(idmarker).position,16f))
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markList.get(idmarker).position,15f))
             markList[idmarker].showInfoWindow()
         })
     }
 
+    fun moverPer(){
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
+        val lat = prefs.getString("lat","")!!.toDouble()
+        val lng = prefs.getString("lng","")!!.toDouble()
+        val add = prefs.getString("add","")
+
+        //Log.i("IDMARKER", idmarker.toString())
+        mapFragment?.getMapAsync({ googleMap ->
+            if (markerZonaPer == MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false))
+            {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng),15f))
+                return@getMapAsync
+            }
+            markerZonaPer = MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false)
+
+            //googleMap.addMarker(markerZonaPer)
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng),15f))
+        })
+    }
 }
 

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.RecomendacionesActivity"
+    android:orientation="vertical"
+    >
+
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="EN CASO DE INCENDIO"
+                android:textColor="@android:color/holo_red_dark"
+                android:textSize="20dp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="De ocurrir un incendio, mantén la calma y evacúa de inmediato
+por la Ruta de Evacuación."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp"
+                android:layout_marginVertical="5dp">
+            </TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Alerta inmediatamente a las personas que se encuentran cerca
+y llama al 116 que es la Central de Emergencia del cuerpo General de Bomberos Voluntarios del Perú."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp"
+                android:layout_marginVertical="5dp">
+            </TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="En caso de ocurrir un amago de incendio, si sabes cómo hacerlo utiliza un extintor para apagarlo."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp"
+                android:layout_marginVertical="5dp">
+            </TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Al evacuar asegúrate, antes de salr, que las manijas de las
+puerta no estén calientes ya que ello pordía implicar que haya
+fuego al otro lado."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp"
+                android:layout_marginVertical="5dp">
+            </TextView>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Evita inhalar humor, tápate la nariz y la boca con un trapo
+húmedo."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp"
+                android:layout_marginVertical="5dp">
+            </TextView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="Por ningún motivo regreses a la zona del incendio, a menos que
+los Bomberos indiquen lo contrario."
+                android:textColor="@android:color/holo_blue_dark"
+                android:textSize="15dp">
+            </TextView>
+
+            <ImageView
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:src="@mipmap/rec">
+             </ImageView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

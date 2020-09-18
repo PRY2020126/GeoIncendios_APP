@@ -50,6 +50,10 @@ open class GuardadosFragment : Fragment() {
         fun onItemClick()
     }
 
+    interface RedirectToMapsPer{
+        fun onItemClickPer()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -90,9 +94,14 @@ open class GuardadosFragment : Fragment() {
     }
 
 
-    /*override fun onHiddenChanged(hidden: Boolean) {
+    override fun onHiddenChanged(hidden: Boolean) {
         super.onHiddenChanged(hidden)
-        guardados = db.readData()
+        val fragment = fragmentManager!!.findFragmentById(R.id.frame_layout_guardados)
+        val ft = fragmentManager!!.beginTransaction()
+        ft.detach(fragment!!)
+        ft.attach(fragment!!)
+        ft.commit()
+        /*guardados = db.readData()
         adaptador = ZonaRiesgoAdapter(guardados, object: ClickListener{
             override fun onClick(view: View, position: Int) {
                 edit.putInt("idmarker",guardados[position].id)
@@ -101,9 +110,11 @@ open class GuardadosFragment : Fragment() {
                 backPressedListener?.onItemClick()
             }
         })
-        RVGuardados.adapter = adaptador
+        RVGuardados.adapter = adaptador*/
     }
-*/
+
+
+
 
 
 }

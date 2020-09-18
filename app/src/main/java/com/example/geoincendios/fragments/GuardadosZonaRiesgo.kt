@@ -1,12 +1,16 @@
 package com.example.geoincendios.fragments
 
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,13 +52,28 @@ class GuardadosZonaRiesgo : Fragment(){
         layoutManager = LinearLayoutManager(context)
         adaptador = ZonaRiesgoAdapter(guardados, object: ClickListener {
             override fun onClick(view: View, position: Int) {
-                edit.putInt("idmarker",guardados[position].id)
-                edit.commit()
-                Log.i("Marcador",guardados[position].toString())
-                backPressedListener?.onItemClick()
+
+                val builder = AlertDialog.Builder(context!!)
+                builder.setMessage("¿Que desea hacer?")
+                    .setCancelable(true)
+                    .setPositiveButton("Ir a la zona de riesgo guardada", DialogInterface.OnClickListener { dialogInterface, i ->
+                        dialogInterface.dismiss()
+                        edit.putInt("idmarker",guardados[position].id)
+                        edit.commit()
+                        Log.i("Marcador",guardados[position].toString())
+                        backPressedListener?.onItemClick()
+                    })
+                    .setNegativeButton("Eliminar",  { dialogInterface, i ->
+                        db.deleteZonariesgo(guardados[position].id)
+                        dialogInterface.dismiss()
+                        val fragment = fragmentManager!!.findFragmentById(R.id.frame_layout_guardados)
+                        val ft = fragmentManager!!.beginTransaction()
+                        ft.detach(fragment!!)
+                        ft.attach(fragment!!)
+                        ft.commit()
+                    }).show()
             }
         })
-
         RVGuardados.layoutManager = layoutManager
         RVGuardados.adapter = adaptador
         return view
@@ -78,4 +97,15 @@ class GuardadosZonaRiesgo : Fragment(){
         }
     }
 
+    fun dialog(){
+        val builder = AlertDialog.Builder(context!!)
+        builder.setMessage("¿Que desea hacer?")
+            .setCancelable(true)
+            .setPositiveButton("Ir a la zona de riesgo guardada", DialogInterface.OnClickListener { dialogInterface, i ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            })
+            .setNegativeButton("Eliminar",  { dialogInterface, i ->
+                dialogInterface.dismiss()
+            }).show()
+    }
 }

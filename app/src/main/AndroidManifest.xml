@@ -3,8 +3,10 @@
     package="com.example.geoincendios">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -14,15 +16,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.RegisterActivity"></activity>
+        <activity android:name=".activities.RecomendacionesActivity"></activity>
+        <activity android:name=".activities.RegisterActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activities.MainActivity"/>
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+
+        <activity android:name=".activities.MainActivity" />
         <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".Splash_screen" >
+        <activity android:name=".Splash_screen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

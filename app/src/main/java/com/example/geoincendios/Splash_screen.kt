@@ -1,8 +1,11 @@
 package com.example.geoincendios
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +24,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 class Splash_screen : AppCompatActivity() {
+
+    private lateinit var locatioManager: LocationManager
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +64,6 @@ class Splash_screen : AppCompatActivity() {
                         starLogin()
                         return
                     }
-
                     //Toast.makeText(this@Splash_screen, usuario.toString(), Toast.LENGTH_LONG).show()
                     //Toast.makeText(this@Splash_screen, user.toString(), Toast.LENGTH_LONG).show()
                     Toast.makeText(this@Splash_screen, "Inicio de Sesión Correcto", Toast.LENGTH_LONG).show()
@@ -90,9 +95,6 @@ class Splash_screen : AppCompatActivity() {
                 starLogin()
             }
         }
-
-
-
     }
 
     private fun starLogin(){
@@ -101,8 +103,5 @@ class Splash_screen : AppCompatActivity() {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         finish()
     }
-
-
-
 
 }

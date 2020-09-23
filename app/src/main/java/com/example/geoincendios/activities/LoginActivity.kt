@@ -4,8 +4,10 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -48,7 +50,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var userService: UsuarioApiService
 
-    private var converter = Gson()
+    private lateinit var locatioManager: LocationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +66,8 @@ class LoginActivity : AppCompatActivity() {
 
         correoET = findViewById(R.id.et_login_email)
         passwordET = findViewById(R.id.et_login_password)
+
+
 
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(URL_API)
@@ -102,9 +106,7 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     token = response.headers().values("Authorization")[0]
-
                     Log.i("Bryan",token)
-
                     editor.putString("token",token)
 
                     userService.login(token, user).enqueue(object : Callback<UserDTO>{
@@ -134,7 +136,6 @@ class LoginActivity : AppCompatActivity() {
                             editor.putString("fec_reg", usuario!!.data.fec_reg)
                             editor.apply()
 
-
                             val i = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(i)
                             finish()
@@ -142,14 +143,14 @@ class LoginActivity : AppCompatActivity() {
 
                         override fun onFailure(call: Call<UserDTO>, t: Throwable) {
                             Log.i(TAG, "MAaaaal")
+                            Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
                         }
                     })
-
-
-
                 }
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Log.i("MAAAAAAAAL", "MAaaaal")
+                    Log.i("Peticion de Token", "MAaaaal")
+                    Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
+
                 }
             })
         }
@@ -158,6 +159,21 @@ class LoginActivity : AppCompatActivity() {
             mostrar_dialogo()
         }
 
+    }
+
+
+    private fun  AlertNoGps(){
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setMessage("EL sistema GPS no esta activado,¿Desea Activarlo?")
+            .setCancelable(false)
+            .setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            })
+            .setNegativeButton("No",  { dialogInterface, i ->
+                dialogInterface.dismiss()
+                AlertNoGps()
+            }).show()
     }
 
     override fun onBackPressed() {

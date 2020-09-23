@@ -5,9 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -18,10 +19,8 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.*
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
-import com.appolica.interactiveinfowindow.InfoWindow
-import com.appolica.interactiveinfowindow.InfoWindowManager
-import com.appolica.interactiveinfowindow.fragment.MapInfoWindowFragment
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
 import com.example.geoincendios.models.DTO.ZonaRiesgoDTO
@@ -30,8 +29,7 @@ import com.example.geoincendios.persistence.DatabaseHandler
 import com.example.geoincendios.persistence.ZonaRiesgoBD
 import com.example.geoincendios.util.URL_API
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -47,9 +45,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.lang.RuntimeException
 import kotlin.math.abs
-import kotlin.math.log
 
 class MapsFragment : Fragment() {
 
@@ -57,29 +53,29 @@ class MapsFragment : Fragment() {
     private lateinit var listMarcadores : MutableList<MarkerOptions>
     private lateinit var markList : MutableList<Marker>
     private lateinit var zonasRiesgoList: MutableList<ZonaRiesgo>
+    var riesgoArray : MutableList<Int> = arrayListOf()
 
     private var token : String? = null
 
-    private var mFusedLocationClient: FusedLocationProviderClient? = null
-
     private  var zoomGlobal = 0f
-
 
     private lateinit var db : DatabaseHandler
 
     private lateinit var imgBtn_recargar: ImageButton
 
     private lateinit var prefs: SharedPreferences
-
-    private var listener : GuardadosFragment.BackPressedListener? = null
+    private lateinit var locationService : FusedLocationProviderClient
 
     var markerZonaPer : MarkerOptions? = null
     var last : Marker? = null
 
-    var riesgoArray : MutableList<Int> = arrayListOf()
+    var markerPer : Marker? = null
 
+    private  lateinit var mylocation : LatLng
 
-    private  var miLocation : FusedLocationProviderClient? = null
+    private lateinit var locationRequest  : LocationRequest
+    private lateinit var locationCallback  : LocationCallback
+    private lateinit var mFusedLocationClient  : FusedLocationProviderClient
 
 
     @SuppressLint("MissingPermission")
@@ -88,16 +84,8 @@ class MapsFragment : Fragment() {
         googleMap.uiSettings.isMyLocationButtonEnabled = true
         googleMap.uiSettings.isMapToolbarEnabled = true
 
-        var mylocation : LatLng? = null
-        miLocation!!.lastLocation.addOnSuccessListener { location ->
-            mylocation = LatLng(location.latitude,location.longitude)
-        }
-        googleMap.setOnMyLocationButtonClickListener {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16.0f))
-            true
-        }
         googleMap.setInfoWindowAdapter( object : GoogleMap.InfoWindowAdapter{
-            override fun getInfoContents(p0: Marker?): View {
+            override fun getInfoContents(p0: Marker?): View? {
                     val v = layoutInflater.inflate(R.layout.marker,null)
                     val title = v.findViewById(R.id.marker_title) as TextView
                     val detalles = v.findViewById(R.id.marker_snniped) as TextView
@@ -124,6 +112,8 @@ class MapsFragment : Fragment() {
                 db.insertDataPer(zona)
             }
             else {
+                Log.i("GAAAAAAAAAAAAAA", riesgoArray[markList.indexOf(it)].toString())
+                Log.i("GAAAAAAAAAAAAAA", markList.indexOf(it).toString())
                 val zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString(),riesgoArray[markList.indexOf(it)])
                 db.insertData(zona)
             }
@@ -136,16 +126,41 @@ class MapsFragment : Fragment() {
         }
         val Lima = LatLng(-12.0554671, -77.0431111)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
+
+        /*locationService = LocationServices.getFusedLocationProviderClient(context!!)
+
+        locationService!!.lastLocation.addOnSuccessListener { location ->
+            mylocation = LatLng(location.latitude, location.longitude)
+        }*/
+
+        googleMap.setOnMyLocationButtonClickListener {
+            val locatioManager = context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Toast.makeText(activity, "El GPS no esta activado",Toast.LENGTH_SHORT).show()
+                false
+            }
+            else{
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mylocation,16.0f))
+                true
+            }
+        }
+
+
     }
 
 
     @SuppressLint("MissingPermission")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        mFusedLocationClient = FusedLocationProviderClient(activity!!)
+        super.onCreate(savedInstanceState)
+    }
+
+    @SuppressLint("MissingPermission")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_maps,container,false)
+
         db = DatabaseHandler(context!!)
-        miLocation = LocationServices.getFusedLocationProviderClient(context!!)
         imgBtn_recargar = activity!!.findViewById(R.id.imgBtn_recargar)
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
         prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         com.google.android.libraries.places.api.Places.initialize(context!!, context!!.resources.getString(R.string.google_maps_key) )
         token = prefs.getString("token","")
@@ -153,29 +168,51 @@ class MapsFragment : Fragment() {
         markList = arrayListOf()
         zonasRiesgoList = arrayListOf()
         riesgoArray = arrayListOf()
-
         return view
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
 
+        traerUbicacion()
         mapFragment?.getMapAsync(callback)
-
-       Traer_Marcadores(token!!,mapFragment!!)
         Buscador(mapFragment!!)
+        Traer_Marcadores(token!!,mapFragment!!)
 
         imgBtn_recargar.setOnClickListener {
-            recargar(mapFragment)
+            recargar(mapFragment!!)
         }
-
     }
+
+    @SuppressLint("MissingPermission")
+    private fun traerUbicacion(){
+
+        locationRequest = LocationRequest.create()
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationRequest.setInterval(20 * 1000)
+        locationCallback = object : LocationCallback() {
+
+            override fun onLocationResult(locationResult: LocationResult?) {
+                    if (locationResult == null) {
+                        return;
+                    }
+                    for (location in locationResult.getLocations()) {
+                        if (location != null) {
+                            mylocation = LatLng(location.latitude, location.longitude)
+                        }
+                }
+                super.onLocationResult(locationResult)
+            }
+        }
+        mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }
+
 
     private fun Traer_Marcadores(token:String,mapFragment: SupportMapFragment): List<Marker>{
        zonasRiesgoList.clear()
        listMarcadores.clear()
+       riesgoArray.clear()
        for(item in markList){
            item.remove()
        }
@@ -245,7 +282,6 @@ class MapsFragment : Fragment() {
         fun newInstance() = MapsFragment()
     }
 
-
     private fun Buscador( mapFragment: SupportMapFragment){
         // Initialize the AutocompleteSupportFragment.
         val autocompleteFragment = childFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
@@ -271,16 +307,16 @@ class MapsFragment : Fragment() {
                 }
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     last = googleMap.addMarker(MarkerOptions().position(place.latLng!!).title(place.name))
-                    googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
+                    /*googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
                         override fun onMarkerClick(p0: Marker?): Boolean {
-                            if (p0 == last)
+                            if (p0 == last || p0 == markerPer)
                             {
                                 return false
                             }
                             return false
                         }
-                    })
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(place.latLng,13f))
+                    })*/
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.latLng,13f))
 
 
                 })
@@ -310,7 +346,6 @@ class MapsFragment : Fragment() {
         })
 
     }
-
 
     fun resizeMarks(googleMap: GoogleMap) {
 
@@ -371,14 +406,33 @@ class MapsFragment : Fragment() {
 
     }
 
-
     fun mover(){
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         val idmarker = prefs.getInt("idmarker",0)
+        val latlng = LatLng(prefs.getString("latZonaRiesgo","")!!.toDouble(),prefs.getString("lngZonaRiesgo","")!!.toDouble())
+
+
+
+        val exist = listMarcadores.any{markerOptions ->
+            markerOptions.position == latlng
+        }
+        if (!exist)
+        {
+            Toast.makeText(context, "La zona de riesgo que ha seleccionado ya no existe", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+        var markerAux = markList.find {marker ->
+            marker.position == latlng
+        }
+
         Log.i("IDMARKER", idmarker.toString())
+
         mapFragment?.getMapAsync({ googleMap ->
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markList.get(idmarker).position,15f))
-            markList[idmarker].showInfoWindow()
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerAux!!.position,15f))
+            markList[markList.indexOf(markerAux)].showInfoWindow()
+
         })
     }
 
@@ -387,19 +441,30 @@ class MapsFragment : Fragment() {
         val lat = prefs.getString("lat","")!!.toDouble()
         val lng = prefs.getString("lng","")!!.toDouble()
         val add = prefs.getString("add","")
-
         //Log.i("IDMARKER", idmarker.toString())
         mapFragment?.getMapAsync({ googleMap ->
-            if (markerZonaPer == MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false))
-            {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng),15f))
-                return@getMapAsync
-            }
             markerZonaPer = MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false)
-
-            //googleMap.addMarker(markerZonaPer)
+            if (markerPer!= null) markerPer!!.remove(); markerPer = null
+            markerPer = googleMap.addMarker(markerZonaPer)
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng),15f))
+            googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
+                override fun onMarkerClick(p0: Marker?): Boolean {
+                    if (p0 == markerPer)
+                    {
+                        markerPer!!.remove()
+                        markerPer = null
+                        return false
+                    }
+                    return false
+                }
+            })
+
+
         })
     }
+
+
+
 }
+
 

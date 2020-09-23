@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1016588581328",
+    "firebase_url": "https://geoincendios.firebaseio.com",
+    "project_id": "geoincendios",
+    "storage_bucket": "geoincendios.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016588581328:android:4f9df24b10627a926fa1d5",
+        "android_client_info": {
+          "package_name": "com.example.geoincendios"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1016588581328-f1kqm8nb6l3knn5bfhgpscgt1qf2bsqp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.geoincendios",
+            "certificate_hash": "477146373cfead371324a0665fe2527a1fb876cc"
+          }
+        },
+        {
+          "client_id": "1016588581328-mllil06d1n97t5hjtbukr7qrr0lie05s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu4DKb77vSXr2by7cwc-26dhqPkp2w-TY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1016588581328-mllil06d1n97t5hjtbukr7qrr0lie05s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

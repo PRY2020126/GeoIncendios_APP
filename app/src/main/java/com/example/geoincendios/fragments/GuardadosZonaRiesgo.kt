@@ -59,6 +59,8 @@ class GuardadosZonaRiesgo : Fragment(){
                     .setPositiveButton("Ir a la zona de riesgo guardada", DialogInterface.OnClickListener { dialogInterface, i ->
                         dialogInterface.dismiss()
                         edit.putInt("idmarker",guardados[position].id)
+                        edit.putString("latZonaRiesgo",guardados[position].lat)
+                        edit.putString("lngZonaRiesgo",guardados[position].lng)
                         edit.commit()
                         Log.i("Marcador",guardados[position].toString())
                         backPressedListener?.onItemClick()

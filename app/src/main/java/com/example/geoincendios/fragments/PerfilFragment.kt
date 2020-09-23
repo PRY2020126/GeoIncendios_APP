@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.location.LocationManager
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -21,12 +22,14 @@ import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
 import com.example.geoincendios.models.Usuario
 import com.example.geoincendios.util.URL_API
+import kotlinx.android.synthetic.main.fragment_perfil.*
 import kotlinx.android.synthetic.main.password_change_dialog.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -37,9 +40,10 @@ class PerfilFragment : Fragment() {
     private lateinit var tv_nombre : TextView
     private lateinit var tv_apellido : TextView
     private lateinit var tv_correo : TextView
-    private lateinit var btn_cerrar_sesion : ImageButton
+    private lateinit var btn_cerrar_sesion : Button
     private lateinit var btn_recomendaciones : Button
     private lateinit var btn_cambiar_contrasena :Button
+    private lateinit var chb_segundoplano : CheckBox
 
     private lateinit var et_new_password: EditText
 
@@ -47,6 +51,22 @@ class PerfilFragment : Fragment() {
 
     private lateinit var prefs: SharedPreferences
     private  var token: String = ""
+
+    var servicioState : ServicioState? = null
+
+    interface ServicioState{
+        fun activarServicio()
+        {
+
+        }
+        fun desactivarServicio()
+        {
+
+        }
+    }
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +89,7 @@ class PerfilFragment : Fragment() {
 
 
         prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
-        val edit = prefs.edit()
+        var edit = prefs.edit()
 
         token = prefs.getString("token","")!!
 
@@ -80,12 +100,17 @@ class PerfilFragment : Fragment() {
         tv_correo = view.findViewById(R.id.tv_correo_perfil)
         btn_cambiar_contrasena = view.findViewById(R.id.btn_editar_perfil)
         btn_recomendaciones = view.findViewById(R.id.btn_recomendaciones)
+        chb_segundoplano = view.findViewById(R.id.chb_segundoplano)
 
         btn_cerrar_sesion = view.findViewById(R.id.btn_cerrar_sesion)
 
         tv_nombre.setText(prefs.getString("name",""))
         tv_apellido.setText(prefs.getString("apellido",""))
         tv_correo.setText(prefs.getString("email",""))
+
+        Log.i("Service",prefs.getBoolean("service",false).toString())
+
+        chb_segundoplano.isChecked = prefs.getBoolean("service",false)
 
         btn_recomendaciones.setOnClickListener {
             val i = Intent(context, RecomendacionesActivity::class.java)
@@ -103,6 +128,30 @@ class PerfilFragment : Fragment() {
         btn_cambiar_contrasena.setOnClickListener {
             mostrar_dialogo()
         }
+
+        chb_segundoplano.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                if(chb_segundoplano.isChecked)
+                {
+                    val locatioManager = context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                    if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        chb_segundoplano.isChecked = false
+                        Toast.makeText(activity, "Active el GPS Primero",Toast.LENGTH_SHORT).show()
+                        return
+                    }
+                    servicioState!!.activarServicio()
+                    edit.putBoolean("service", true)
+                    edit.commit()
+                }
+                else
+                {
+                    servicioState!!.desactivarServicio()
+                    edit.putBoolean("service", false)
+                    edit.commit()
+
+                }
+            }
+        })
 
         return  view
     }
@@ -178,5 +227,15 @@ class PerfilFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance() = PerfilFragment()
+    }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is ServicioState){
+            servicioState = context
+        } else {
+            throw  RuntimeException(context.toString())
+        }
     }
 }

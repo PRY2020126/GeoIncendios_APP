@@ -46,6 +46,8 @@ open class GuardadosFragment : Fragment() {
     lateinit var guardadosZonaRiesgo: GuardadosZonaRiesgo
     lateinit var guardadosPersonalizado: GuardadosPersonalizado
 
+
+
     interface BackPressedListener{
         fun onItemClick()
     }

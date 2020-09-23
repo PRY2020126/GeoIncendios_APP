@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -16,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activities.RecomendacionesActivity"></activity>
+
+        <activity android:name=".activities.RecomendacionesActivity" />
         <activity android:name=".activities.RegisterActivity" />
 
         <meta-data
@@ -34,6 +36,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <service android:name=".MyService" android:enabled="true"></service>
+        <receiver android:name=".BroadCast">
+            <intent-filter>
+                <action android:name="IWillStartAuto"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

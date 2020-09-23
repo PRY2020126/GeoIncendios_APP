@@ -1,17 +1,16 @@
 package com.example.geoincendios.activities
 
-import android.annotation.SuppressLint
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.location.LocationManager
-import android.media.Image
-import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -24,11 +23,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import com.emmanuelkehinde.shutdown.Shutdown
+import com.example.geoincendios.MyService
 import com.example.geoincendios.R
 import com.example.geoincendios.Splash_screen
 import com.example.geoincendios.fragments.ContribuirFragment
@@ -36,10 +36,7 @@ import com.example.geoincendios.fragments.GuardadosFragment
 import com.example.geoincendios.fragments.MapsFragment
 import com.example.geoincendios.fragments.PerfilFragment
 import com.example.geoincendios.util.StateFragment
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.StringBuilder
 
 private const val TAG_ONE = "first"
 private const val TAG_SECOND = "second"
@@ -48,56 +45,125 @@ private const val TAG_FOURTH = "fourth"
 private const val MAX_HISTORIC = 5
 
 
-class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener, GuardadosFragment.RedirectToMapsPer {
-
+class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener, GuardadosFragment.RedirectToMapsPer, PerfilFragment.ServicioState {
 
 
     private val listState = mutableListOf<StateFragment>()
     private var currentTag: String = TAG_ONE
     private var oldTag: String = TAG_ONE
     private var currentMenuItemId: Int = R.id.navigationHome
-    private lateinit var btnImgRefresh : ImageButton
+    private lateinit var btnImgRefresh: ImageButton
 
     private lateinit var locatioManager: LocationManager
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var notificationChannel: NotificationChannel
-    private lateinit var builder : Notification.Builder
+    private lateinit var builder: Notification.Builder
     private val channelId = "com.example.geoincendios.activities"
     private val descrption = "Test notification"
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    private lateinit var fragmentManager: FragmentManager
+
+    private lateinit var myService: MyService
+
+
+    override fun activarServicio() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(Intent(this, myService::class.java))
+        } else {
+            startService(Intent(this, myService::class.java))
+        }
+    }
+
+    override fun desactivarServicio() {
+        stopService(Intent(this, myService::class.java))
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val prefs = getSharedPreferences("user", Context.MODE_PRIVATE)
-        init()
 
-        if (savedInstanceState == null && Build.VERSION.SDK_INT >=23 ){
-            requestPermissionAndContinue()
-        } //loadFirstFragment()
+        init()
+        myService = MyService()
+
+
+        /*if(prefs.getBoolean("service",false) && !isMyServiceRunning(myService::class.java))
+        {
+            activarServicio()
+        }*/
 
         locatioManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-        {
+        if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             AlertNoGps()
         }
-        createNoti()
+        else
+        {
+            if (savedInstanceState == null && Build.VERSION.SDK_INT >= 23) {
+                requestPermissionAndContinue()
+            }
+        }
+    }
 
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertNoGps()
+        }
+        else
+        {
+            Log.i("Vuelve", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            requestPermissionAndContinue()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+
+    }
+
+    private fun  AlertNoGps(){
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("EL sistema GPS no esta activado,¿Desea activarlo?")
+            .setCancelable(false)
+            .setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivityForResult(intent,111)
+            })
+            .setNegativeButton("No",  { dialogInterface, i ->
+                dialogInterface.dismiss()
+                requestPermissionAndContinue()
+            }).show()
+    }
+    fun mostrarDialogoPermisos() {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("Ha rechazado los permisos de la aplicación, por favor activelos manualmente y reinicie la aplicación para poder usarla")
+            .setCancelable(false)
+            .setPositiveButton("Ir Ahora", DialogInterface.OnClickListener { dialogInterface, i ->
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                val uri: Uri = Uri.fromParts("package", this.packageName, null)
+                intent.data = uri
+                this.startActivityForResult(intent,222)
+            })
+            .setNegativeButton("Entiendo",{dialogInterface, i ->
+                dialogInterface.dismiss()
+            }).show()
     }
 
     private fun requestPermissionAndContinue() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.e("AAA", "permission denied, show dialog")
+                Log.e("Error", "permission denied, show dialog")
+                mostrarDialogoPermisos()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
             }
         } else {
-            loadFirstFragment()
+                loadFirstFragment()
+            }
             this
-        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -106,20 +172,18 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
             -1 -> {}
             1 -> {
                     if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    loadFirstFragment()
-                    this
-                 } else {
+                        loadFirstFragment()
+                        this
+                 }  else {
                     requestPermissionAndContinue()
+                        this
                     }
             }
         }
 
     }
 
-
     private fun createNoti(){
-
-
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         {
@@ -135,7 +199,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
                 openNotificationSettings()
             }
         }
-
 
         val intent = Intent(this, Splash_screen::class.java)
         val pendingIntent = PendingIntent.getActivity(this,0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -190,38 +253,7 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         }
     }
 
- /*   private fun createNotificationChannel(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val name = "Notificacion"
-            val notificationChannel = NotificationChannel(CHANNEL_ID,name,NotificationManager.IMPORTANCE_DEFAULT)
-            notificationChannel.enableLights(true)
-            notificationChannel.enableVibration(true)
-            notificationChannel.lightColor = Color.RED
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(notificationChannel)
 
-            val builder = Notification.Builder(this,CHANNEL_ID)
-                .setContentTitle("Te encuentra cerca a una zona de riesgo")
-                .setContentText("Ten cuidado y revisa las recomendaciones en tu perfil")
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-            notificationManager.notify(NOTIFICATON_ID,builder.build())
-
-        }else {
-            createNotification()
-        }
-    }
-    private fun createNotification(){
-        val builder = NotificationCompat.Builder(this,CHANNEL_ID)
-        builder.setSmallIcon(R.drawable.logo)
-        builder.setContentTitle("Te encuentra cerca a una zona de riesgo")
-        builder.setContentText("Ten cuidado y revisa las recomendaciones en tu perfil")
-        builder.setPriority(NotificationCompat.PRIORITY_HIGH)
-        builder.setDefaults(Notification.DEFAULT_ALL)
-
-        val notificationManagerCompat = NotificationManagerCompat.from(this)
-        notificationManagerCompat.notify(NOTIFICATON_ID,builder.build())
-    }
-*/
     private fun init() {
 
         btnImgRefresh = findViewById(R.id.imgBtn_recargar)
@@ -243,6 +275,7 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
 
             false
         }
+
     }
 
     private fun changeFragment(tagToChange: String, fragment: Fragment) {
@@ -271,7 +304,7 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         if (listState.size >= 1) {
             recoverFragment()
         } else {
-            Shutdown.now(this)
+            Shutdown.now(this, "Presione de nuevo para salir")
         }
     }
 
@@ -295,10 +328,10 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         val menu = bottomNavigationView.menu
 
         when (lastState.oldFragmentTag) {
-            TAG_ONE -> setMenuItem(menu.getItem(0))
-            TAG_SECOND -> setMenuItem(menu.getItem(1))
-            TAG_THIRD -> setMenuItem(menu.getItem(2))
-            TAG_FOURTH -> setMenuItem(menu.getItem(3))
+            TAG_ONE -> {setMenuItem(menu.getItem(0)); btnImgRefresh.visibility = View.VISIBLE;}
+            TAG_SECOND -> {setMenuItem(menu.getItem(1));btnImgRefresh.visibility = View.INVISIBLE;}
+            TAG_THIRD -> {setMenuItem(menu.getItem(2));btnImgRefresh.visibility = View.INVISIBLE;}
+            TAG_FOURTH -> {setMenuItem(menu.getItem(3));btnImgRefresh.visibility = View.INVISIBLE;}
         }
         //Remove from Stack
         listState.removeLast()
@@ -325,9 +358,9 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
             MapsFragment.newInstance(),
             TAG_ONE)
         transaction.commitAllowingStateLoss()
+        //transaction.commit()
     }
 
-    //Like YouTube
     private fun addBackStack() {
 
 
@@ -358,18 +391,8 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         setMenuItem(menu.getItem(0))
         val a = supportFragmentManager.findFragmentByTag(currentTag) as MapsFragment
         a.mover()
-    }
+        btnImgRefresh.visibility = View.VISIBLE
 
-    private fun  AlertNoGps(){
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("EL sistema GPS no esta activado,¿Desea Activarlo?")
-            .setCancelable(false)
-            .setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
-                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-            })
-            .setNegativeButton("No",  { dialogInterface, i ->
-                dialogInterface.dismiss()
-            }).show()
     }
 
     override fun onItemClickPer() {
@@ -378,6 +401,8 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         setMenuItem(menu.getItem(0))
         val a = supportFragmentManager.findFragmentByTag(currentTag) as MapsFragment
         a.moverPer()
+        btnImgRefresh.visibility = View.VISIBLE
+
     }
 
 }

@@ -25,9 +25,9 @@ val TABLE_PER = "ZonasPersonalizada"
 class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,null,1){
     override fun onCreate(db: SQLiteDatabase?) {
         val createTable = "CREATE TABLE " + TABLE_NAME +"(" +
+                COL_ID + " INTEGER PRIMARY KEY, " +
                 COL_ADDRESS +" VARCHAR(256), " +
                 COL_LAT + " VARCHAR(256), " +
-                COL_ID + " INTEGER, " +
                 COL_LONG +" VARCHAR(256), " +
                 COL_RIESGO + " INTEGER)"
 
@@ -49,7 +49,7 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
 
         val db = this.writableDatabase
 
-        val query = "Select * from " + TABLE_NAME + " where id = "+ zonaRiesgo.id
+        val query = "Select * from " + TABLE_NAME + " where address = "+ "'"+zonaRiesgo.addres+"'"
         val dbRead = this.readableDatabase
         val resultRead = dbRead.rawQuery(query,null)
 
@@ -62,7 +62,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
         cv.put(COL_ADDRESS, zonaRiesgo.addres)
         cv.put(COL_LAT, zonaRiesgo.lat)
         cv.put(COL_LONG, zonaRiesgo.lng)
-        cv.put(COL_ID, zonaRiesgo.id)
         cv.put(COL_RIESGO, zonaRiesgo.riesgo)
         var result = db.insert(TABLE_NAME, null,cv)
 

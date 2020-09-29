@@ -111,16 +111,19 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            AlertNoGps()
-        }
-        else
+        if(requestCode == 111)
         {
-            Log.i("Vuelve", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-            requestPermissionAndContinue()
+            if (!locatioManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                AlertNoGps()
+            }
+            else
+            {
+                Log.i("Vuelve", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                requestPermissionAndContinue()
+            }
         }
-        super.onActivityResult(requestCode, resultCode, data)
 
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun  AlertNoGps(){
@@ -136,6 +139,8 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
                 requestPermissionAndContinue()
             }).show()
     }
+
+
     fun mostrarDialogoPermisos() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Ha rechazado los permisos de la aplicación, por favor activelos manualmente y reinicie la aplicación para poder usarla")

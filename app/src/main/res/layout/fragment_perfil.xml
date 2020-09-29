@@ -131,7 +131,7 @@
                 android:id="@+id/chb_segundoplano"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Seguimiento en segundo plano"
+                android:text="Habilitar Notificaciones"
                 android:textSize="20dp"></CheckBox>
 
             <Button

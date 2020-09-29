@@ -127,8 +127,6 @@ class ContribuirFragment : Fragment() {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
     }
 
-
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_contribuir, container, false)
 
@@ -199,11 +197,13 @@ class ContribuirFragment : Fragment() {
                 punto!!.remove()
                 punto = null
                 Toast.makeText(activity, "Se ha enviado su contribución, gracias.",Toast.LENGTH_LONG).show()
+                btn_enviar.isClickable = true
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
                 Log.i("AHHH", "MAaaaal")
-                Toast.makeText(activity, "Ha ocurrido un error al enviar su contribución, inténtenlo mas tarde",Toast.LENGTH_LONG).show()
+                Toast.makeText(activity, "Ha ocurrido un error al enviar su contribución, inténtenlo más tarde",Toast.LENGTH_LONG).show()
+                btn_enviar.isClickable = true
             }
         })
     }
@@ -213,6 +213,7 @@ class ContribuirFragment : Fragment() {
             builder.setTitle("Advertencia")
             builder.setMessage("Al enviar una contribución irrelevante, esto puede ocasionar un bloqueo de su cuenta.")
             builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
+                btn_enviar.isClickable = false
                 enviarZonaContribuida()
                 dialogInterface.dismiss()
             })
@@ -224,7 +225,7 @@ class ContribuirFragment : Fragment() {
 
 
     fun connect(context: Context) {
-        val serverURI = "wss://mqtt.eclipse.org:443/mqtt"
+        val serverURI = "wss://test.mosquitto.org:8081/"
         mqttClient = MqttAndroidClient(context, serverURI, "kotlin_client")
         mqttClient.setCallback(object : MqttCallback {
             override fun messageArrived(topic: String?, message: MqttMessage?) {

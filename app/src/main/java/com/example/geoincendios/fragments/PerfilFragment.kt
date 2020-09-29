@@ -2,6 +2,7 @@ package com.example.geoincendios.fragments
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.LocationManager
@@ -53,6 +54,8 @@ class PerfilFragment : Fragment() {
     private  var token: String = ""
 
     var servicioState : ServicioState? = null
+
+    private lateinit var btn_cambiar_contra:Button
 
     interface ServicioState{
         fun activarServicio()
@@ -156,6 +159,16 @@ class PerfilFragment : Fragment() {
         return  view
     }
 
+    fun showDialogSuccess(){
+        val builder = AlertDialog.Builder(context)
+        builder.setCancelable(false)
+        builder.setTitle("Cambio de contraseña exitoso")
+        builder.setMessage("Por favor vuelva a iniciar sesion con su nueva contraseña")
+        builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+            btn_cerrar_sesion.performClick()
+        }).show()
+    }
 
     private fun cambiar_contrasena(){
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
@@ -174,9 +187,11 @@ class PerfilFragment : Fragment() {
                 val usuario = response.body()
                 Log.i("Usuario",user.toString())
                 Log.i("Actualizar Perfil",response.body().toString())
+                showDialogSuccess()
             }
             override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                Log.i("AHHH", "MAaaaal")
+                Log.i("Resultado", "Ah ocurrido un error")
+                btn_cambiar_contra.isClickable = true
             }
         })
     }
@@ -213,10 +228,8 @@ class PerfilFragment : Fragment() {
                 Toast.makeText(activity,"La contraseña nueva no coincide",Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
+            btn_cambiar_contra.isClickable = false
             cambiar_contrasena()
-            dialog.dismiss()
-            btn_cerrar_sesion.performClick()
         }
         btn_close_dialog.setOnClickListener {
             dialog.dismiss()

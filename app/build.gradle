@@ -38,12 +38,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
     //mapas
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.google.android.gms:play-services-places:17.0.0'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
     implementation 'com.google.android.libraries.places:places:2.3.0'
+
     //test
     implementation 'com.google.firebase:firebase-database:16.0.4'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'

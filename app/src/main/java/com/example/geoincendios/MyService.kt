@@ -9,14 +9,14 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
 import com.example.geoincendios.models.DTO.ZonaRiesgoDTO
 import com.example.geoincendios.util.URL_API
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.LatLng
 import retrofit2.Call
 import retrofit2.Callback
@@ -32,8 +32,6 @@ import java.util.*
 class MyService : Service() {
 
     private val TAG = "BackgroundService"
-
-    private  var miLocation : FusedLocationProviderClient? = null
 
     private lateinit var notificationManager: NotificationManager
     private lateinit var notificationChannel: NotificationChannel
@@ -65,6 +63,11 @@ class MyService : Service() {
 
     private  var arrayOfHours : MutableList<String>? = null
 
+
+    private lateinit var locationRequest  : LocationRequest
+    private lateinit var locationCallback  : LocationCallback
+    private lateinit var mFusedLocationClient  : FusedLocationProviderClient
+
     override fun onBind(p0: Intent?): IBinder? {
         Log.i(TAG, "OnBind()")
         return null
@@ -77,11 +80,12 @@ class MyService : Service() {
         val pref = getSharedPreferences("user", Context.MODE_PRIVATE)
         token =  pref.getString("token","")!!
 
-        miLocation = LocationServices.getFusedLocationProviderClient(this!!)
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(URL_API)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
+        mFusedLocationClient = FusedLocationProviderClient(this!!)
 
         zonaRiesgoApiService = retrofit.create(ZonaRiesgoApiService::class.java)
         zonaRiesgoList = arrayListOf()
@@ -89,18 +93,12 @@ class MyService : Service() {
         mHandler = Handler()
         obtenerZonas()
 
-        miLocation!!.lastLocation.addOnSuccessListener { location ->
-            mylocation = LatLng(location.latitude,location.longitude)
-        }
         arrayOfHours = arrayListOf("12:00","06:00", "18:00")
         sdf = SimpleDateFormat("HH:mm")
 
-
         Log.i("Hora ", arrayOfHours.toString())
 
-
-
-
+        traerUbicacion()
         if (Build.VERSION.SDK_INT >= 26) {
             val CHANNEL_ID = "my_channel_01"
             val channel = NotificationChannel(CHANNEL_ID, "de zonas de riesgo", NotificationManager.IMPORTANCE_DEFAULT)
@@ -114,7 +112,6 @@ class MyService : Service() {
     }
 
 
-
     @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.i(TAG, "Service Started, OnStart()")
@@ -124,7 +121,7 @@ class MyService : Service() {
                             Log.i("Corriendo",corriendo.toString())
                             menor = false
                              Log.i("Hora",sdf.format(Date()))
-
+                            Log.i("Ubicacion",mylocation.toString() )
                             if(arrayOfHours!!.contains(sdf.format(Date())))
                             {
                                 obtenerZonas()
@@ -153,10 +150,28 @@ class MyService : Service() {
         return START_STICKY
     }
 
-    override fun onRebind(intent: Intent?) {
-        super.onRebind(intent)
-    }
+    @SuppressLint("MissingPermission")
+    private fun traerUbicacion(){
 
+        locationRequest = LocationRequest.create()
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+        locationRequest.setInterval(20 * 1000)
+        locationCallback = object : LocationCallback() {
+
+            override fun onLocationResult(locationResult: LocationResult?) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (location in locationResult.getLocations()) {
+                    if (location != null) {
+                        mylocation = LatLng(location.latitude, location.longitude)
+                    }
+                }
+                super.onLocationResult(locationResult)
+            }
+        }
+        mFusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+    }
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         sendBroadcast(Intent("IWillStartAuto"))

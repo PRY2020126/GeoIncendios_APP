@@ -462,9 +462,6 @@ class MapsFragment : Fragment() {
 
         })
     }
-
-
-
 }
 
 

@@ -52,6 +52,9 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var locatioManager: LocationManager
 
+
+    private lateinit var  btn_enviar_contra : Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -96,12 +99,14 @@ class LoginActivity : AppCompatActivity() {
             }
 
             var user = LoginDTO(email = correoET.text.toString(),password = passwordET.text.toString())
+            loginBtn.isClickable = false
 
             userService.generar_token(user).enqueue(object : Callback<Void>{
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     if( response.headers().values("Authorization").isNullOrEmpty())
                     {
-                        Toast.makeText(this@LoginActivity,"Correo o contraseña no existe" ,Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@LoginActivity,"Correo o contraseña no existe" ,Toast.LENGTH_SHORT).show()
+                        loginBtn.isClickable = true
                         return
                     }
 
@@ -117,6 +122,7 @@ class LoginActivity : AppCompatActivity() {
 
                             if (usuario!!.data.status == 0){
                                 Toast.makeText(this@LoginActivity, "La cuenta ha sido suspendida",Toast.LENGTH_LONG).show()
+                                loginBtn.isClickable = true
                                 return
                             }
 
@@ -138,19 +144,21 @@ class LoginActivity : AppCompatActivity() {
 
                             val i = Intent(this@LoginActivity, MainActivity::class.java)
                             startActivity(i)
+                            loginBtn.isClickable = true
                             finish()
                         }
 
                         override fun onFailure(call: Call<UserDTO>, t: Throwable) {
                             Log.i(TAG, "MAaaaal")
                             Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
+                            loginBtn.isClickable = true
                         }
                     })
                 }
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     Log.i("Peticion de Token", "MAaaaal")
                     Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
-
+                    loginBtn.isClickable = true
                 }
             })
         }
@@ -162,19 +170,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    private fun  AlertNoGps(){
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setMessage("EL sistema GPS no esta activado,¿Desea Activarlo?")
-            .setCancelable(false)
-            .setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            })
-            .setNegativeButton("No",  { dialogInterface, i ->
-                dialogInterface.dismiss()
-                AlertNoGps()
-            }).show()
-    }
 
     override fun onBackPressed() {
         Shutdown.now(this, "Presione de nuevo para salir")
@@ -191,7 +186,8 @@ class LoginActivity : AppCompatActivity() {
 
         val et_correo_recuperar = view.findViewById(R.id.et_correo_recuperar) as EditText
 
-        val btn_enviar_contra = view.findViewById(R.id.btn_enviar_recuperar_contrasena) as Button
+
+        btn_enviar_contra = view.findViewById(R.id.btn_enviar_recuperar_contrasena) as Button
         val btn_close_dialog = view.findViewById(R.id.btn_cerrar_recuperar_contrasena) as Button
 
         et_correo_recuperar.addTextChangedListener( object : TextWatcher {
@@ -208,8 +204,8 @@ class LoginActivity : AppCompatActivity() {
         btn_enviar_contra.setOnClickListener {
 
             if(et_correo_recuperar.error.isNullOrEmpty() && !et_correo_recuperar.text.isNullOrEmpty()) {
+                btn_enviar_contra.isClickable = false
                 recuperarContrasena(et_correo_recuperar.text.toString())
-
                 //dialog.dismiss()
             }
             else {
@@ -249,9 +245,11 @@ class LoginActivity : AppCompatActivity() {
                     showDialogSuccess()
                 }
                 Log.i("AHHH", Correo.toString())
+
             }
             override fun onFailure(call: Call<ResponseDTO>, t: Throwable) {
-                Log.i("AHHH", "MAaaaal")
+                Log.i("Resultado:", "MAaaaal")
+                btn_enviar_contra.isClickable = true
             }
         })
     }
@@ -262,10 +260,13 @@ class LoginActivity : AppCompatActivity() {
 
     fun showDialogSuccess(){
     val builder = AlertDialog.Builder(this)
+        builder.setCancelable(false)
         builder.setTitle("Confirmación")
         builder.setMessage("Por favor verifica tu correo electrónico, en unos instantes llegará el mensaje")
         builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
             dialogInterface.dismiss()
+            btn_enviar_contra.isClickable = true
+
         }).show()
     }
 
@@ -275,6 +276,7 @@ class LoginActivity : AppCompatActivity() {
         builder.setMessage("El correo que has ingresado no se encuentra registrado")
         builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
             dialogInterface.dismiss()
+            btn_enviar_contra.isClickable = true
         }).show()
     }
 

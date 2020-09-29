@@ -10,7 +10,6 @@ class BroadCast : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.i(BroadCast::class.java.simpleName, "Service Stops!!!")
         context!!.startService(Intent(context,MyService::class.java))
-
     }
 
 }

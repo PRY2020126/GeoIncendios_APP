@@ -75,8 +75,6 @@ class RegisterActivity : AppCompatActivity() {
         )
 
         registrarbtn.setOnClickListener {
-
-
             if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty()
                  || contrasenaET.text.isEmpty() || repetir_contrasenaET.text.isEmpty())
             {
@@ -95,8 +93,8 @@ class RegisterActivity : AppCompatActivity() {
                 Toast.makeText(this,"Ingrese un correo valido" ,Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
-
-
+            registrarbtn.isClickable = false
+            Log.i("boton","desactivado")
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
             val currentDate = sdf.format(Date())
 
@@ -117,17 +115,23 @@ class RegisterActivity : AppCompatActivity() {
                         Toast.makeText(this@RegisterActivity,"Registro Completo" ,Toast.LENGTH_LONG).show()
                         val i = Intent(this@RegisterActivity, LoginActivity::class.java)
                         startActivity(i)
+                        registrarbtn.isClickable = true
                         finish()
+
                     }
                     if (usuario!!.errorCode == "2"){
                         Toast.makeText(this@RegisterActivity,"El correo ya se encuentra registrado" ,Toast.LENGTH_LONG).show()
+                        registrarbtn.isClickable = true
+                        Log.i("boton","activado")
                         return
                     }
                 }
 
                 override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                    Log.i("MAAAAAAAAL", "MAaaaal")
+                    Log.i("Resultado Registro", "Fallo al conectar al servidor")
                     Toast.makeText(this@RegisterActivity,"Registro Fallido" ,Toast.LENGTH_LONG).show()
+                    registrarbtn.isClickable = true
+
                 }
             })
 

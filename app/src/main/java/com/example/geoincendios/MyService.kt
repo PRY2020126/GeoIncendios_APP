@@ -67,7 +67,6 @@ class MyService : Service() {
     private lateinit var locationRequest  : LocationRequest
     private lateinit var locationCallback  : LocationCallback
     private lateinit var mFusedLocationClient  : FusedLocationProviderClient
-
     override fun onBind(p0: Intent?): IBinder? {
         Log.i(TAG, "OnBind()")
         return null
@@ -105,7 +104,7 @@ class MyService : Service() {
             (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(channel)
             val notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Se esta ejecutando GeoIncendios en Sengundo Plano")
+                .setContentTitle("Se esta ejecutando GeoIncendios en Segundo Plano")
                 .setContentText("Se le notificara si se encuentra cerca de una zona de riesgo").build()
             startForeground(1, notification)
         }

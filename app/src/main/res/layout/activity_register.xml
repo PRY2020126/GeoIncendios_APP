@@ -62,6 +62,8 @@
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:hint="Nombres"
+                    android:digits="abcdefghijklmnñopqrstuvwxyz ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
+
                     android:textSize="14sp" />
             </androidx.cardview.widget.CardView>
 
@@ -86,8 +88,8 @@
                     android:layout_marginHorizontal="15dp"
                     android:ems="10"
                     android:hint="Apellidos"
+                    android:digits="abcdefghijklmnñopqrstuvwxyz ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
                     android:inputType="text"
-
                     android:textSize="14sp" />
             </androidx.cardview.widget.CardView>
 

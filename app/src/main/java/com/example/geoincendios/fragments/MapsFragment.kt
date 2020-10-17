@@ -22,8 +22,11 @@ import android.widget.*
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.example.geoincendios.R
+import com.example.geoincendios.interfaces.RecursosApiService
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
+import com.example.geoincendios.models.DTO.RecursosDTO
 import com.example.geoincendios.models.DTO.ZonaRiesgoDTO
+import com.example.geoincendios.models.Recurso
 import com.example.geoincendios.models.ZonaRiesgo
 import com.example.geoincendios.persistence.DatabaseHandler
 import com.example.geoincendios.persistence.ZonaRiesgoBD
@@ -55,6 +58,10 @@ class MapsFragment : Fragment() {
     private lateinit var zonasRiesgoList: MutableList<ZonaRiesgo>
     var riesgoArray : MutableList<Int> = arrayListOf()
 
+    var recursosArray : MutableList<MarkerOptions> = arrayListOf()
+    var recursosMarkerArray : MutableList<Marker> = arrayListOf()
+
+
     private var token : String? = null
 
     private  var zoomGlobal = 0f
@@ -78,6 +85,8 @@ class MapsFragment : Fragment() {
     private lateinit var mFusedLocationClient  : FusedLocationProviderClient
 
 
+    private var hidrantesMostrados: Boolean = false
+
     @SuppressLint("MissingPermission")
     private val callback = OnMapReadyCallback { googleMap ->
         googleMap.isMyLocationEnabled = true
@@ -86,11 +95,14 @@ class MapsFragment : Fragment() {
 
         googleMap.setInfoWindowAdapter( object : GoogleMap.InfoWindowAdapter{
             override fun getInfoContents(p0: Marker?): View? {
+                if (p0 in recursosMarkerArray)
+                {
+                    return null
+                }
                     val v = layoutInflater.inflate(R.layout.marker,null)
                     val title = v.findViewById(R.id.marker_title) as TextView
                     val detalles = v.findViewById(R.id.marker_snniped) as TextView
                     //Log.i("detalle", p0!!.snippet.toString())
-
                     if(p0!!.snippet.isNullOrEmpty()){
                         detalles.visibility = View.GONE
                     }
@@ -123,15 +135,26 @@ class MapsFragment : Fragment() {
         googleMap.setMinZoomPreference(10.5f)
         googleMap.setOnCameraMoveListener {
             resizeMarks(googleMap)
+            if (!hidrantesMostrados) { mostrarHidrantes(googleMap) }
+            else { ocultarHidrantes(googleMap)
+                }
         }
         val Lima = LatLng(-12.0554671, -77.0431111)
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Lima, 11.0f))
 
-        /*locationService = LocationServices.getFusedLocationProviderClient(context!!)
-
-        locationService!!.lastLocation.addOnSuccessListener { location ->
-            mylocation = LatLng(location.latitude, location.longitude)
-        }*/
+        googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
+            override fun onMarkerClick(p0: Marker?): Boolean {
+                if (p0 in recursosMarkerArray) {
+                    Log.i("Marcador","Hidrante")
+                    return true
+                }
+                else
+                {
+                    Log.i("Marcador","No es")
+                    return false
+                }
+            }
+        })
 
         googleMap.setOnMyLocationButtonClickListener {
             val locatioManager = context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -144,8 +167,6 @@ class MapsFragment : Fragment() {
                 true
             }
         }
-
-
     }
 
 
@@ -160,7 +181,7 @@ class MapsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_maps,container,false)
 
         db = DatabaseHandler(context!!)
-        imgBtn_recargar = activity!!.findViewById(R.id.imgBtn_recargar)
+        imgBtn_recargar = view.findViewById(R.id.imgBtn_recargar)
         prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
         com.google.android.libraries.places.api.Places.initialize(context!!, context!!.resources.getString(R.string.google_maps_key) )
         token = prefs.getString("token","")
@@ -178,11 +199,12 @@ class MapsFragment : Fragment() {
         traerUbicacion()
         mapFragment?.getMapAsync(callback)
         Buscador(mapFragment!!)
-        Traer_Marcadores(token!!,mapFragment!!)
-
+        Traer_Marcadores(token!!,mapFragment)
+        Traer_Hidrantes()
         imgBtn_recargar.setOnClickListener {
-            recargar(mapFragment!!)
+            recargar(mapFragment)
         }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -259,13 +281,13 @@ class MapsFragment : Fragment() {
                     }
                     listMarcadores.add(marker)
                     riesgoArray.add(zonacolor)
-
                 }
+
+
                 Log.i("Marcadores",listMarcadores.toString())
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     for (item in listMarcadores){
                         markList.add(googleMap.addMarker(item))
-
                     }
                 })
             }
@@ -275,6 +297,42 @@ class MapsFragment : Fragment() {
         })
 
         return markList
+    }
+
+
+    private fun Traer_Hidrantes() {
+        val retrofit: Retrofit = Retrofit.Builder()
+            .baseUrl(URL_API)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        var bitmapdraw : BitmapDrawable? = null
+        var bitmap:Bitmap
+        var smallMaker :Bitmap
+        bitmapdraw = resources.getDrawable(R.drawable.hidrante) as BitmapDrawable
+        bitmap = bitmapdraw!!.bitmap
+
+        smallMaker= Bitmap.createScaledBitmap(bitmap,50, 50,false)
+
+        val recursosApiService = retrofit.create(RecursosApiService::class.java)
+
+
+        recursosApiService.getHidrantes(token!!).enqueue(object : Callback<RecursosDTO> {
+            override fun onResponse(call: Call<RecursosDTO>, response: Response<RecursosDTO>) {
+                val hidrantes = response.body()!!.data
+                Log.i("Hidrantes", hidrantes.toString())
+
+                for (item in hidrantes)
+                {
+                    val marker = MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(smallMaker)).position(LatLng(item.coordenateY!!,item.coordenateX!!))
+                        .title(item.locdes).anchor(0.5f,0.5f).flat(false).draggable(false)
+                    recursosArray.add(marker)
+                }
+            }
+            override fun onFailure(call: Call<RecursosDTO>, t: Throwable) {
+                Log.i("AAAA", "MAaaaal")
+            }
+        })
     }
 
     companion object{
@@ -359,11 +417,12 @@ class MapsFragment : Fragment() {
         //Toast.makeText(activity, googleMap.cameraPosition.zoom.toString(), Toast.LENGTH_SHORT).show()
 
         var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.4,zoom.toDouble()));
-        if (relativePixelSize > maxPixelSize)
+        /*if (relativePixelSize > maxPixelSize)
         {
             //relativePixelSize = maxPixelSize.toLong()
             //Log.i("RelativePixesSizeNuevo",relativePixelSize.toString())
         }
+*/
 
         if (abs(zoomGlobal - zoom) >= 1.0 )
         {
@@ -387,6 +446,58 @@ class MapsFragment : Fragment() {
             }
         }
      }
+
+    private fun hallaDistancia(lat1: Double,lat2: Double,lng1: Double,lng2 : Double): Double{
+        val R = 6371;
+        val dLat = deg2rad(lat2-lat1)
+        val dLng = deg2rad(lng2-lng1)
+        val a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLng/2) * Math.sin(dLng/2)
+        ;
+        val c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        val d = R * c; // Distance in km
+        return d;
+    }
+
+    private fun deg2rad(deg: Double): Double{
+        return deg * (Math .PI/180)
+    }
+
+
+    fun mostrarHidrantes(googleMap: GoogleMap)
+    {
+            if(googleMap.cameraPosition.zoom >= 17) {
+                Log.i("Estado", "Mostrando Hidrantes")
+                val camLat= googleMap.cameraPosition.target.latitude
+                val camLng= googleMap.cameraPosition.target.longitude
+
+                for (item in recursosArray) {
+
+                    if(hallaDistancia(camLat,item.position.latitude,camLng,item.position.longitude)< 1)
+                    {
+                        recursosMarkerArray.add(googleMap.addMarker(item))
+                    }
+                }
+                hidrantesMostrados = true
+            }
+    }
+
+    fun ocultarHidrantes(googleMap: GoogleMap)
+    {
+
+            if(googleMap.cameraPosition.zoom < 16.5 )
+            {
+                for (item in recursosMarkerArray)
+                {
+                    Log.i("Estado","Ocultando Hidrantes")
+                    item.remove()
+                }
+                recursosMarkerArray.clear()
+                hidrantesMostrados = false
+            }
+    }
+
 
     fun recargar(mapFragment: SupportMapFragment){
         val rotate = RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
@@ -442,25 +553,22 @@ class MapsFragment : Fragment() {
         val lng = prefs.getString("lng","")!!.toDouble()
         val add = prefs.getString("add","")
         //Log.i("IDMARKER", idmarker.toString())
-        mapFragment?.getMapAsync({ googleMap ->
+        mapFragment?.getMapAsync { googleMap ->
             markerZonaPer = MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false)
             if (markerPer!= null) markerPer!!.remove(); markerPer = null
             markerPer = googleMap.addMarker(markerZonaPer)
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng),15f))
             googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
                 override fun onMarkerClick(p0: Marker?): Boolean {
-                    if (p0 == markerPer)
-                    {
+                    if (p0 == markerPer) {
                         markerPer!!.remove()
                         markerPer = null
                         return false
                     }
-                    return false
+                    return true
                 }
             })
-
-
-        })
+        }
     }
 }
 

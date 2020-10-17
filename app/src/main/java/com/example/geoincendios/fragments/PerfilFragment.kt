@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.location.LocationManager
 import android.media.Image
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -18,11 +19,13 @@ import com.example.geoincendios.R
 import com.example.geoincendios.activities.LoginActivity
 import com.example.geoincendios.activities.MainActivity
 import com.example.geoincendios.activities.RecomendacionesActivity
+import com.example.geoincendios.activities.WebViewActivity
 import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
 import com.example.geoincendios.models.Usuario
 import com.example.geoincendios.util.URL_API
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_perfil.*
 import kotlinx.android.synthetic.main.password_change_dialog.*
 import retrofit2.Call
@@ -41,7 +44,7 @@ class PerfilFragment : Fragment() {
     private lateinit var tv_nombre : TextView
     private lateinit var tv_apellido : TextView
     private lateinit var tv_correo : TextView
-    private lateinit var btn_cerrar_sesion : Button
+    private lateinit var btn_ultimas_emergencias : Button
     private lateinit var btn_recomendaciones : Button
     private lateinit var btn_cambiar_contrasena :Button
     private lateinit var chb_segundoplano : CheckBox
@@ -51,11 +54,15 @@ class PerfilFragment : Fragment() {
     private lateinit var userService: UsuarioApiService
 
     private lateinit var prefs: SharedPreferences
+    private lateinit var edit : SharedPreferences.Editor
     private  var token: String = ""
 
     var servicioState : ServicioState? = null
 
     private lateinit var btn_cambiar_contra:Button
+
+    private lateinit var imgBtn_cerrar_sesion: ImageButton
+
 
     interface ServicioState{
         fun activarServicio()
@@ -92,7 +99,7 @@ class PerfilFragment : Fragment() {
 
 
         prefs = activity!!.getSharedPreferences("user", Context.MODE_PRIVATE)
-        var edit = prefs.edit()
+        edit = prefs.edit()
 
         token = prefs.getString("token","")!!
 
@@ -105,8 +112,9 @@ class PerfilFragment : Fragment() {
         btn_recomendaciones = view.findViewById(R.id.btn_recomendaciones)
         chb_segundoplano = view.findViewById(R.id.chb_segundoplano)
 
-        btn_cerrar_sesion = view.findViewById(R.id.btn_cerrar_sesion)
+        btn_ultimas_emergencias = view.findViewById(R.id.btn_ultimas_emergencias)
 
+        imgBtn_cerrar_sesion = view.findViewById(R.id.imgBtn_cerrar_sesion)
         tv_nombre.setText(prefs.getString("name",""))
         tv_apellido.setText(prefs.getString("apellido",""))
         tv_correo.setText(prefs.getString("email",""))
@@ -120,16 +128,17 @@ class PerfilFragment : Fragment() {
             startActivity(i)
         }
 
-        btn_cerrar_sesion.setOnClickListener {
-            edit.clear()
-            edit.commit()
-            val i = Intent(context, LoginActivity::class.java)
+        btn_ultimas_emergencias.setOnClickListener {
+            val i = Intent(context, WebViewActivity::class.java)
             startActivity(i)
-            activity!!.finish()
         }
 
         btn_cambiar_contrasena.setOnClickListener {
             mostrar_dialogo()
+        }
+
+        imgBtn_cerrar_sesion.setOnClickListener{
+            showDialogCerrarSesion()
         }
 
         chb_segundoplano.setOnClickListener(object : View.OnClickListener{
@@ -159,6 +168,24 @@ class PerfilFragment : Fragment() {
         return  view
     }
 
+    fun showDialogCerrarSesion()
+    {
+        val builder = AlertDialog.Builder(context)
+        builder.setCancelable(true)
+        builder.setTitle("Cierre de Sesión")
+        builder.setMessage("¿Esta seguro de cerrar sesión?")
+        builder.setPositiveButton("Si", DialogInterface.OnClickListener { dialogInterface, i ->
+            edit.clear()
+            edit.commit()
+            val i = Intent(context, LoginActivity::class.java)
+            startActivity(i)
+            activity!!.finish()
+        }).
+        setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        }) .show()
+    }
+
     fun showDialogSuccess(){
         val builder = AlertDialog.Builder(context)
         builder.setCancelable(false)
@@ -166,7 +193,11 @@ class PerfilFragment : Fragment() {
         builder.setMessage("Por favor vuelva a iniciar sesion con su nueva contraseña")
         builder.setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
             dialogInterface.dismiss()
-            btn_cerrar_sesion.performClick()
+            edit.clear()
+            edit.commit()
+            val i = Intent(context, LoginActivity::class.java)
+            startActivity(i)
+            activity!!.finish()
         }).show()
     }
 
@@ -187,6 +218,7 @@ class PerfilFragment : Fragment() {
                 val usuario = response.body()
                 Log.i("Usuario",user.toString())
                 Log.i("Actualizar Perfil",response.body().toString())
+                
                 showDialogSuccess()
             }
             override fun onFailure(call: Call<UserDTO>, t: Throwable) {

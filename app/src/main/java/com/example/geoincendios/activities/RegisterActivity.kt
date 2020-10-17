@@ -1,8 +1,9 @@
 package com.example.geoincendios.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.os.AsyncTask
 import android.os.Bundle
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -10,23 +11,24 @@ import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doAfterTextChanged
+import androidx.appcompat.app.AppCompatActivity
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.UsuarioApiService
-import com.example.geoincendios.models.DTO.ResponseDTO
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
 import com.example.geoincendios.models.Usuario
+import com.example.geoincendios.util.RetrieveFeedTask
 import com.example.geoincendios.util.URL_API
+import org.jsoup.Jsoup
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.regex.Pattern
+
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -74,6 +76,9 @@ class RegisterActivity : AppCompatActivity() {
         }
         )
 
+        Log.i("IP",RetrieveFeedTask().execute().get())
+        Log.i("AndroidId",getAndroidId())
+
         registrarbtn.setOnClickListener {
             if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty()
                  || contrasenaET.text.isEmpty() || repetir_contrasenaET.text.isEmpty())
@@ -98,12 +103,16 @@ class RegisterActivity : AppCompatActivity() {
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
             val currentDate = sdf.format(Date())
 
+
+
             var usuario = Usuario(idusuario = "0", firtsName = nombresET.text.toString(),
                 lastName = apellidosET.text.toString(), email = correoET.text.toString(),
-                password = contrasenaET.text.toString(),role =  Role(3,"Móvil") , status = 1, user_reg = null,
+                password = contrasenaET.text.toString(),role =  Role(3,"Móvil") , status = 1, user_reg = correoET.text.toString(),
                 fec_reg = currentDate, cpc_reg = null, user_mod = null, cpc_mod = null, fec_mod = null )
 
             //Toast.makeText(this@RegisterActivity,usuario.toString() ,Toast.LENGTH_LONG).show()
+
+
 
 
             userService.saveUser(usuario).enqueue(object : Callback<UserDTO>{
@@ -138,9 +147,20 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
+    @Throws(IOException::class)
+    fun getPublicIP(): String? {
+        val doc = Jsoup.connect("http://www.checkip.org").get()
+        return doc.getElementById("yourip").select("h1").first().select("span").text()
+    }
+
+    fun getAndroidId() : String {
+        return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
+    }
 
     fun validarEmail( email : String): Boolean{
         val pattern = Patterns.EMAIL_ADDRESS;
         return pattern.matcher(email).matches();
     }
+
+
 }

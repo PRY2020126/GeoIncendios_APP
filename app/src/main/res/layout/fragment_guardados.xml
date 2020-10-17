@@ -7,6 +7,31 @@
     tools:context=".fragments.GuardadosFragment"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarGuardados"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        android:layout_margin="0dp">
+
+        <ImageView
+            android:src="@drawable/logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+        <TextView
+            android:textColor="#fff"
+            android:text=" GeoIncendios"
+            android:textStyle="bold"
+            android:textSize="25dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"/>
+    </androidx.appcompat.widget.Toolbar>
+
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"

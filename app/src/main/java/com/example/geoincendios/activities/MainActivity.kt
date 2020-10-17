@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
     private var currentTag: String = TAG_ONE
     private var oldTag: String = TAG_ONE
     private var currentMenuItemId: Int = R.id.navigationHome
-    private lateinit var btnImgRefresh: ImageButton
 
     private lateinit var locatioManager: LocationManager
 
@@ -261,23 +260,19 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
 
     private fun init() {
 
-        btnImgRefresh = findViewById(R.id.imgBtn_recargar)
 
         bottomNavigationView.setOnNavigationItemSelectedListener { menuItem ->
-
             if (currentMenuItemId != menuItem.itemId) {
                 currentMenuItemId = menuItem.itemId
 
                 when (currentMenuItemId) {
-                    R.id.navigationHome -> {changeFragment(TAG_ONE, MapsFragment.newInstance()); btnImgRefresh.visibility = View.VISIBLE}
-                    R.id.navigationContribuir -> {changeFragment(TAG_SECOND, ContribuirFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
-                    R.id.navigationGuardado -> {changeFragment(TAG_THIRD, GuardadosFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
-                    R.id.navigationPerfil -> {changeFragment(TAG_FOURTH, PerfilFragment.newInstance()); btnImgRefresh.visibility = View.INVISIBLE}
+                    R.id.navigationHome -> {changeFragment(TAG_ONE, MapsFragment.newInstance())}
+                    R.id.navigationContribuir -> {changeFragment(TAG_SECOND, ContribuirFragment.newInstance())}
+                    R.id.navigationGuardado -> {changeFragment(TAG_THIRD, GuardadosFragment.newInstance())}
+                    R.id.navigationPerfil -> {changeFragment(TAG_FOURTH, PerfilFragment.newInstance())}
                 }
-
                 return@setOnNavigationItemSelectedListener true
             }
-
             false
         }
 
@@ -333,10 +328,11 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         val menu = bottomNavigationView.menu
 
         when (lastState.oldFragmentTag) {
-            TAG_ONE -> {setMenuItem(menu.getItem(0)); btnImgRefresh.visibility = View.VISIBLE;}
-            TAG_SECOND -> {setMenuItem(menu.getItem(1));btnImgRefresh.visibility = View.INVISIBLE;}
-            TAG_THIRD -> {setMenuItem(menu.getItem(2));btnImgRefresh.visibility = View.INVISIBLE;}
-            TAG_FOURTH -> {setMenuItem(menu.getItem(3));btnImgRefresh.visibility = View.INVISIBLE;}
+            TAG_ONE -> {setMenuItem(menu.getItem(0))}
+            TAG_SECOND -> {setMenuItem(menu.getItem(1))}
+            TAG_THIRD -> {setMenuItem(menu.getItem(2))}
+            TAG_FOURTH -> {setMenuItem(menu.getItem(3))}
+
         }
         //Remove from Stack
         listState.removeLast()
@@ -396,8 +392,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         setMenuItem(menu.getItem(0))
         val a = supportFragmentManager.findFragmentByTag(currentTag) as MapsFragment
         a.mover()
-        btnImgRefresh.visibility = View.VISIBLE
-
     }
 
     override fun onItemClickPer() {
@@ -406,8 +400,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         setMenuItem(menu.getItem(0))
         val a = supportFragmentManager.findFragmentByTag(currentTag) as MapsFragment
         a.moverPer()
-        btnImgRefresh.visibility = View.VISIBLE
-
     }
 
 }

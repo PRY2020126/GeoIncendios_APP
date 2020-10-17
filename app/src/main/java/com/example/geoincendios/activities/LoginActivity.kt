@@ -6,8 +6,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
-import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -25,13 +23,11 @@ import com.example.geoincendios.models.DTO.ResponseDTO
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Email
 import com.example.geoincendios.util.URL_API
-import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.*
 
 
 class LoginActivity : AppCompatActivity() {

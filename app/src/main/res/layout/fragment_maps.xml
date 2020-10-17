@@ -1,19 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.Toolbar
+        android:layout_alignParentTop="true"
+        android:id="@+id/toolbarMaps"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        android:layout_margin="0dp"
+        android:visibility="visible">
 
+        <ImageView
+            android:src="@drawable/logo"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
+        <TextView
+            android:textColor="#fff"
+            android:text=" GeoIncendios"
+            android:textStyle="bold"
+            android:textSize="25dp"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"/>
+
+        <ImageButton
+            android:id="@+id/imgBtn_recargar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="right"
+            android:background="@drawable/ic_refresh"
+            android:padding="0dp"
+            android:layout_marginRight="5dp"
+            ></ImageButton>
+    </androidx.appcompat.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent">
     <fragment
         android:id="@+id/autocomplete_fragment"
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"/>
 
     <fragment
         android:id="@+id/map"
@@ -21,7 +59,6 @@
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         android:layout_below="@id/autocomplete_fragment"/>
-
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
@@ -108,7 +145,11 @@
     </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-</RelativeLayout>
+    </RelativeLayout>
+
+
+
+</LinearLayout>
 
 
 

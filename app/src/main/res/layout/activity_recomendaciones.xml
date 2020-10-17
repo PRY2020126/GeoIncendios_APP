@@ -54,7 +54,7 @@ y llama al 116 que es la Central de Emergencia del cuerpo General de Bomberos Vo
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:text="En caso de ocurrir un amago de incendio, si sabes cómo hacerlo utiliza un extintor para apagarlo."
+                android:text="En caso de ocurrir un amago de incendio, si sabes cómo hacerlo, utiliza un extintor para apagarlo."
                 android:textColor="@android:color/holo_blue_dark"
                 android:textSize="15dp"
                 android:layout_marginVertical="5dp">
@@ -64,8 +64,8 @@ y llama al 116 que es la Central de Emergencia del cuerpo General de Bomberos Vo
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:text="Al evacuar asegúrate, antes de salr, que las manijas de las
-puerta no estén calientes ya que ello pordía implicar que haya
+                android:text="Al evacuar asegúrate, antes de salir, que las manijas de las
+puerta no estén calientes ya que ello podría implicar que haya
 fuego al otro lado."
                 android:textColor="@android:color/holo_blue_dark"
                 android:textSize="15dp"
@@ -77,7 +77,7 @@ fuego al otro lado."
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:text="Evita inhalar humor, tápate la nariz y la boca con un trapo
+                android:text="Evita inhalar humo, tápate la nariz y la boca con un trapo
 húmedo."
                 android:textColor="@android:color/holo_blue_dark"
                 android:textSize="15dp"

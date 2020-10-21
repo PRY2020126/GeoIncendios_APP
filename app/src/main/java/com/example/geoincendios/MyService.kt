@@ -85,19 +85,20 @@ class MyService : Service() {
             .build()
 
         mFusedLocationClient = FusedLocationProviderClient(this!!)
+        traerUbicacion()
 
         zonaRiesgoApiService = retrofit.create(ZonaRiesgoApiService::class.java)
         zonaRiesgoList = arrayListOf()
 
         mHandler = Handler()
-        obtenerZonas()
+
 
         arrayOfHours = arrayListOf("12:00","06:00", "18:00")
         sdf = SimpleDateFormat("HH:mm")
 
         Log.i("Hora ", arrayOfHours.toString())
 
-        traerUbicacion()
+        obtenerZonas()
         if (Build.VERSION.SDK_INT >= 26) {
             val CHANNEL_ID = "my_channel_01"
             val channel = NotificationChannel(CHANNEL_ID, "de zonas de riesgo", NotificationManager.IMPORTANCE_DEFAULT)

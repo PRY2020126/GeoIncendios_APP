@@ -1,51 +1,25 @@
 package com.example.geoincendios.fragments
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.geoincendios.R
-import com.example.geoincendios.persistence.ClickListener
 import com.example.geoincendios.persistence.DatabaseHandler
 import com.example.geoincendios.persistence.ZonaRiesgoAdapter
 import com.example.geoincendios.persistence.ZonaRiesgoBD
-import com.google.android.material.bottomnavigation.BottomNavigationMenu
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_guardados.*
-import java.lang.ClassCastException
-import java.lang.RuntimeException
+
 
 
 open class GuardadosFragment : Fragment() {
 
-    private lateinit var RVGuardados : RecyclerView
-    private lateinit var layoutManager : RecyclerView.LayoutManager
-    private lateinit var guardados: MutableList<ZonaRiesgoBD>
-    private lateinit var adaptador : ZonaRiesgoAdapter
-
-
-    lateinit var prefs : SharedPreferences
-    lateinit var edit :SharedPreferences.Editor
-
-    private lateinit var db : DatabaseHandler
-
-    var  backPressedListener : BackPressedListener? = null
-
-    private var currentItem = null
-
     lateinit var guardadosZonaRiesgo: GuardadosZonaRiesgo
     lateinit var guardadosPersonalizado: GuardadosPersonalizado
-
 
 
     interface BackPressedListener{
@@ -103,16 +77,6 @@ open class GuardadosFragment : Fragment() {
         ft.detach(fragment!!)
         ft.attach(fragment!!)
         ft.commit()
-        /*guardados = db.readData()
-        adaptador = ZonaRiesgoAdapter(guardados, object: ClickListener{
-            override fun onClick(view: View, position: Int) {
-                edit.putInt("idmarker",guardados[position].id)
-                edit.commit()
-                Log.i("Marcador",guardados[position].toString())
-                backPressedListener?.onItemClick()
-            }
-        })
-        RVGuardados.adapter = adaptador*/
     }
 
 

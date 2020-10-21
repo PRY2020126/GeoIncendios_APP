@@ -55,7 +55,6 @@ class GuardadosPersonalizado: Fragment() {
                         edit.putString("lng",guardados[position].lng)
                         edit.putString("add",guardados[position].addres)
                         edit.commit()
-                        Log.i("Marcador",guardados[position].toString())
                         redirectToMap?.onItemClickPer()
                     })
                     builder.setNegativeButton("Eliminar",  { dialogInterface, i ->
@@ -70,16 +69,6 @@ class GuardadosPersonalizado: Fragment() {
                     builder.show()
             }
         })
-        /*(guardados, object: ClickListener {
-            override fun onClick(view: View, position: Int) {
-                edit.putString("lat",guardados[position].lat)
-                edit.putString("lng",guardados[position].lng)
-                edit.putString("add",guardados[position].addres)
-                edit.commit()
-                Log.i("Marcador",guardados[position].toString())
-                redirectToMap?.onItemClickPer()
-            }
-        })*/
 
         RVGuardados.layoutManager = layoutManager
         RVGuardados.adapter = adaptador

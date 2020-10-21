@@ -1,12 +1,9 @@
 package com.example.geoincendios
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.geoincendios.activities.LoginActivity
@@ -47,7 +44,6 @@ class Splash_screen : AppCompatActivity() {
         var pass = prefs.getString("password","")
         var token = prefs.getString("token","")
 
-        //Toast.makeText(this,email + pass + token, Toast.LENGTH_SHORT).show()
 
         iv_note.alpha =0f
 
@@ -64,15 +60,13 @@ class Splash_screen : AppCompatActivity() {
                         starLogin()
                         return
                     }
-                    //Toast.makeText(this@Splash_screen, usuario.toString(), Toast.LENGTH_LONG).show()
-                    //Toast.makeText(this@Splash_screen, user.toString(), Toast.LENGTH_LONG).show()
+
                     Toast.makeText(this@Splash_screen, "Inicio de Sesión Correcto", Toast.LENGTH_LONG).show()
                     val i = Intent(this@Splash_screen, MainActivity::class.java)
                     startActivity(i)
                     finish()
                 }
                 override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                    Log.i("AMM", "MAaaaal")
                     Toast.makeText(this@Splash_screen, "Ha ocurrido un error en el servidor", Toast.LENGTH_LONG).show()
                     editor.clear()
                     editor.commit()

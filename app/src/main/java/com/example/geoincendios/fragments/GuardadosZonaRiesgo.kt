@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,7 +61,6 @@ class GuardadosZonaRiesgo : Fragment(){
                         edit.putString("latZonaRiesgo",guardados[position].lat)
                         edit.putString("lngZonaRiesgo",guardados[position].lng)
                         edit.commit()
-                        Log.i("Marcador",guardados[position].toString())
                         backPressedListener?.onItemClick()
                     })
                     .setNegativeButton("Eliminar",  { dialogInterface, i ->

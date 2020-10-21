@@ -17,7 +17,6 @@ import com.example.geoincendios.interfaces.UsuarioApiService
 import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
 import com.example.geoincendios.models.Usuario
-import com.example.geoincendios.util.RetrieveFeedTask
 import com.example.geoincendios.util.URL_API
 import org.jsoup.Jsoup
 import retrofit2.Call
@@ -76,8 +75,6 @@ class RegisterActivity : AppCompatActivity() {
         }
         )
 
-        Log.i("IP",RetrieveFeedTask().execute().get())
-        Log.i("AndroidId",getAndroidId())
 
         registrarbtn.setOnClickListener {
             if(nombresET.text.isEmpty() || apellidosET.text.isEmpty() || correoET.text.isEmpty()
@@ -99,7 +96,6 @@ class RegisterActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             registrarbtn.isClickable = false
-            Log.i("boton","desactivado")
             val sdf = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss")
             val currentDate = sdf.format(Date())
 
@@ -108,17 +104,11 @@ class RegisterActivity : AppCompatActivity() {
             var usuario = Usuario(idusuario = "0", firtsName = nombresET.text.toString(),
                 lastName = apellidosET.text.toString(), email = correoET.text.toString(),
                 password = contrasenaET.text.toString(),role =  Role(3,"Móvil") , status = 1, user_reg = correoET.text.toString(),
-                fec_reg = currentDate, cpc_reg = null, user_mod = null, cpc_mod = null, fec_mod = null )
-
-            //Toast.makeText(this@RegisterActivity,usuario.toString() ,Toast.LENGTH_LONG).show()
-
-
-
+                fec_reg = currentDate, cpc_reg = getAndroidId(), user_mod = null, cpc_mod = null, fec_mod = null )
 
             userService.saveUser(usuario).enqueue(object : Callback<UserDTO>{
                 override fun onResponse(call: Call<UserDTO>, response: Response<UserDTO>) {
                     val usuario = response.body()
-                    Log.i("Bryan",response.body().toString())
 
                     if (usuario!!.errorCode == "0" && usuario!!.data != null) {
                         Toast.makeText(this@RegisterActivity,"Registro Completo" ,Toast.LENGTH_LONG).show()
@@ -131,13 +121,11 @@ class RegisterActivity : AppCompatActivity() {
                     if (usuario!!.errorCode == "2"){
                         Toast.makeText(this@RegisterActivity,"El correo ya se encuentra registrado" ,Toast.LENGTH_LONG).show()
                         registrarbtn.isClickable = true
-                        Log.i("boton","activado")
                         return
                     }
                 }
 
                 override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                    Log.i("Resultado Registro", "Fallo al conectar al servidor")
                     Toast.makeText(this@RegisterActivity,"Registro Fallido" ,Toast.LENGTH_LONG).show()
                     registrarbtn.isClickable = true
 

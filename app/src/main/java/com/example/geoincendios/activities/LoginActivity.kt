@@ -4,11 +4,9 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.location.LocationManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
@@ -46,7 +44,6 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var userService: UsuarioApiService
 
-    private lateinit var locatioManager: LocationManager
 
 
     private lateinit var  btn_enviar_contra : Button
@@ -107,14 +104,11 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     token = response.headers().values("Authorization")[0]
-                    Log.i("Bryan",token)
                     editor.putString("token",token)
 
                     userService.login(token, user).enqueue(object : Callback<UserDTO>{
                         override fun onResponse(call: Call<UserDTO>, response: Response<UserDTO>) {
                             val usuario = response.body()
-                            Log.i(TAG,response.body().toString())
-                            //Toast.makeText(this@LoginActivity, usuario!!.data.toString(),Toast.LENGTH_LONG).show()
 
                             if (usuario!!.data.status == 0){
                                 Toast.makeText(this@LoginActivity, "La cuenta ha sido suspendida",Toast.LENGTH_LONG).show()
@@ -124,7 +118,6 @@ class LoginActivity : AppCompatActivity() {
 
 
                             Toast.makeText(this@LoginActivity, "Inicio de Sesión Correcto",Toast.LENGTH_LONG).show()
-
 
 
                             editor.putString("idusuario",usuario!!.data.idusuario.toString())
@@ -145,14 +138,12 @@ class LoginActivity : AppCompatActivity() {
                         }
 
                         override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                            Log.i(TAG, "MAaaaal")
                             Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
                             loginBtn.isClickable = true
                         }
                     })
                 }
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Log.i("Peticion de Token", "MAaaaal")
                     Toast.makeText(this@LoginActivity, "El servidor no responde, inténtelo más tarde", Toast.LENGTH_SHORT).show()
                     loginBtn.isClickable = true
                 }
@@ -240,11 +231,9 @@ class LoginActivity : AppCompatActivity() {
                 {
                     showDialogSuccess()
                 }
-                Log.i("AHHH", Correo.toString())
 
             }
             override fun onFailure(call: Call<ResponseDTO>, t: Throwable) {
-                Log.i("Resultado:", "MAaaaal")
                 btn_enviar_contra.isClickable = true
             }
         })

@@ -15,10 +15,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.MenuItem
-import android.view.View
-import android.widget.ImageButton
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -59,7 +56,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
     private lateinit var notificationChannel: NotificationChannel
     private lateinit var builder: Notification.Builder
     private val channelId = "com.example.geoincendios.activities"
-    private val descrption = "Test notification"
 
     private lateinit var fragmentManager: FragmentManager
 
@@ -85,7 +81,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val prefs = getSharedPreferences("user", Context.MODE_PRIVATE)
-
         init()
         myService = MyService()
 
@@ -117,7 +112,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
             }
             else
             {
-                Log.i("Vuelve", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                 requestPermissionAndContinue()
             }
         }
@@ -159,7 +153,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
     private fun requestPermissionAndContinue() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-                Log.e("Error", "permission denied, show dialog")
                 mostrarDialogoPermisos()
             } else {
                 ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1)
@@ -187,7 +180,7 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
 
     }
 
-    private fun createNoti(){
+    /*private fun createNoti(){
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
         {
@@ -256,7 +249,7 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
             startActivity(intent)
         }
     }
-
+    */
 
     private fun init() {
 
@@ -359,7 +352,6 @@ class MainActivity : AppCompatActivity(), GuardadosFragment.BackPressedListener,
             MapsFragment.newInstance(),
             TAG_ONE)
         transaction.commitAllowingStateLoss()
-        //transaction.commit()
     }
 
     private fun addBackStack() {

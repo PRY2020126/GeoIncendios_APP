@@ -4,12 +4,9 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Paint
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -188,7 +185,6 @@ class ContribuirFragment : Fragment() {
             override fun onResponse(call: Call<Any>, response: Response<Any>) {
                 publish("SGRI/ContZone","Notificacion")
                 val usuario = response.body()
-                Log.i("AHH",response.body().toString())
                 et_direccion.setPaintFlags(View.INVISIBLE)
                 et_direccion.text = "Seleccione un punto para obtener la dirección"
                 et_descripcion.setText("")
@@ -201,7 +197,6 @@ class ContribuirFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<Any>, t: Throwable) {
-                Log.i("AHHH", "MAaaaal")
                 Toast.makeText(activity, "Ha ocurrido un error al enviar su contribución, inténtenlo más tarde",Toast.LENGTH_LONG).show()
                 btn_enviar.isClickable = true
             }

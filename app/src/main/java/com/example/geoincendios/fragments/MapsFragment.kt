@@ -11,7 +11,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,14 +18,12 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.*
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import com.example.geoincendios.R
 import com.example.geoincendios.interfaces.RecursosApiService
 import com.example.geoincendios.interfaces.ZonaRiesgoApiService
 import com.example.geoincendios.models.DTO.RecursosDTO
 import com.example.geoincendios.models.DTO.ZonaRiesgoDTO
-import com.example.geoincendios.models.Recurso
 import com.example.geoincendios.models.ZonaRiesgo
 import com.example.geoincendios.persistence.DatabaseHandler
 import com.example.geoincendios.persistence.ZonaRiesgoBD
@@ -102,7 +99,6 @@ class MapsFragment : Fragment() {
                     val v = layoutInflater.inflate(R.layout.marker,null)
                     val title = v.findViewById(R.id.marker_title) as TextView
                     val detalles = v.findViewById(R.id.marker_snniped) as TextView
-                    //Log.i("detalle", p0!!.snippet.toString())
                     if(p0!!.snippet.isNullOrEmpty()){
                         detalles.visibility = View.GONE
                     }
@@ -124,8 +120,6 @@ class MapsFragment : Fragment() {
                 db.insertDataPer(zona)
             }
             else {
-                Log.i("GAAAAAAAAAAAAAA", riesgoArray[markList.indexOf(it)].toString())
-                Log.i("GAAAAAAAAAAAAAA", markList.indexOf(it).toString())
                 val zona = ZonaRiesgoBD(markList.indexOf(it),it.title, it.position.latitude.toString(),it.position.longitude.toString(),riesgoArray[markList.indexOf(it)])
                 db.insertData(zona)
             }
@@ -145,12 +139,10 @@ class MapsFragment : Fragment() {
         googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
             override fun onMarkerClick(p0: Marker?): Boolean {
                 if (p0 in recursosMarkerArray) {
-                    Log.i("Marcador","Hidrante")
                     return true
                 }
                 else
                 {
-                    Log.i("Marcador","No es")
                     return false
                 }
             }
@@ -284,7 +276,6 @@ class MapsFragment : Fragment() {
                 }
 
 
-                Log.i("Marcadores",listMarcadores.toString())
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     for (item in listMarcadores){
                         markList.add(googleMap.addMarker(item))
@@ -292,7 +283,6 @@ class MapsFragment : Fragment() {
                 })
             }
             override fun onFailure(call: Call<ZonaRiesgoDTO>, t: Throwable) {
-                Log.i("AAAA", "MAaaaal")
             }
         })
 
@@ -320,7 +310,6 @@ class MapsFragment : Fragment() {
         recursosApiService.getHidrantes(token!!).enqueue(object : Callback<RecursosDTO> {
             override fun onResponse(call: Call<RecursosDTO>, response: Response<RecursosDTO>) {
                 val hidrantes = response.body()!!.data
-                Log.i("Hidrantes", hidrantes.toString())
 
                 for (item in hidrantes)
                 {
@@ -330,7 +319,6 @@ class MapsFragment : Fragment() {
                 }
             }
             override fun onFailure(call: Call<RecursosDTO>, t: Throwable) {
-                Log.i("AAAA", "MAaaaal")
             }
         })
     }
@@ -365,15 +353,6 @@ class MapsFragment : Fragment() {
                 }
                 mapFragment?.getMapAsync(OnMapReadyCallback { googleMap ->
                     last = googleMap.addMarker(MarkerOptions().position(place.latLng!!).title(place.name))
-                    /*googleMap.setOnMarkerClickListener(object :GoogleMap.OnMarkerClickListener{
-                        override fun onMarkerClick(p0: Marker?): Boolean {
-                            if (p0 == last || p0 == markerPer)
-                            {
-                                return false
-                            }
-                            return false
-                        }
-                    })*/
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(place.latLng,13f))
 
 
@@ -382,8 +361,6 @@ class MapsFragment : Fragment() {
             }
 
             override fun onError(status: Status) {
-                // TODO: Handle the error.
-                Log.i("YOO", "An error occurred: $status")
             }
         })
 
@@ -394,7 +371,6 @@ class MapsFragment : Fragment() {
                     last!!.remove()
                     last = null
                     buscado = false
-                    Log.i("Se limpio","AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                 }
             }
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -413,16 +389,7 @@ class MapsFragment : Fragment() {
         val zoom =  googleMap.cameraPosition.zoom
         if (zoomGlobal==0f)zoomGlobal = zoom
 
-        Log.i("Zoom",zoom.toString())
-        //Toast.makeText(activity, googleMap.cameraPosition.zoom.toString(), Toast.LENGTH_SHORT).show()
-
         var relativePixelSize = Math.round(pixelSizeAtZoom0*Math.pow(1.4,zoom.toDouble()));
-        /*if (relativePixelSize > maxPixelSize)
-        {
-            //relativePixelSize = maxPixelSize.toLong()
-            //Log.i("RelativePixesSizeNuevo",relativePixelSize.toString())
-        }
-*/
 
         if (abs(zoomGlobal - zoom) >= 1.0 )
         {
@@ -431,7 +398,6 @@ class MapsFragment : Fragment() {
             var bitmap :Bitmap
             var smallMaker :Bitmap
             zoomGlobal = zoom
-            //Log.i("Zoom","redibujandoooooooooooooooooooooooooooooooooooooooooooooooooooooo")
             for (marker in markList)
             {
                 when (zonasRiesgoList[markList.indexOf(marker)].type!!.idtipo){
@@ -468,7 +434,6 @@ class MapsFragment : Fragment() {
     fun mostrarHidrantes(googleMap: GoogleMap)
     {
             if(googleMap.cameraPosition.zoom >= 17) {
-                Log.i("Estado", "Mostrando Hidrantes")
                 val camLat= googleMap.cameraPosition.target.latitude
                 val camLng= googleMap.cameraPosition.target.longitude
 
@@ -490,7 +455,6 @@ class MapsFragment : Fragment() {
             {
                 for (item in recursosMarkerArray)
                 {
-                    Log.i("Estado","Ocultando Hidrantes")
                     item.remove()
                 }
                 recursosMarkerArray.clear()
@@ -508,8 +472,6 @@ class MapsFragment : Fragment() {
         imgBtn_recargar.startAnimation(rotate)
         Toast.makeText(activity,"Recargando...",Toast.LENGTH_SHORT).show()
         Traer_Marcadores(token!!,mapFragment)
-        //activity!!.finish()
-        //startActivity(activity!!.intent)
 
         Handler().postDelayed({
             imgBtn_recargar.clearAnimation()
@@ -519,7 +481,6 @@ class MapsFragment : Fragment() {
 
     fun mover(){
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        val idmarker = prefs.getInt("idmarker",0)
         val latlng = LatLng(prefs.getString("latZonaRiesgo","")!!.toDouble(),prefs.getString("lngZonaRiesgo","")!!.toDouble())
 
 
@@ -538,8 +499,6 @@ class MapsFragment : Fragment() {
             marker.position == latlng
         }
 
-        Log.i("IDMARKER", idmarker.toString())
-
         mapFragment?.getMapAsync({ googleMap ->
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markerAux!!.position,15f))
             markList[markList.indexOf(markerAux)].showInfoWindow()
@@ -552,7 +511,6 @@ class MapsFragment : Fragment() {
         val lat = prefs.getString("lat","")!!.toDouble()
         val lng = prefs.getString("lng","")!!.toDouble()
         val add = prefs.getString("add","")
-        //Log.i("IDMARKER", idmarker.toString())
         mapFragment?.getMapAsync { googleMap ->
             markerZonaPer = MarkerOptions().position(LatLng(lat,lng)).title(add).anchor(0.5f,0.5f).flat(false)
             if (markerPer!= null) markerPer!!.remove(); markerPer = null

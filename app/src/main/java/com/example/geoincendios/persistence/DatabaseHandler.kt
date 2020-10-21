@@ -1,11 +1,9 @@
 package com.example.geoincendios.persistence
 
-import android.R.attr.name
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
 import android.widget.Toast
 
 
@@ -65,7 +63,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
         cv.put(COL_RIESGO, zonaRiesgo.riesgo)
         var result = db.insert(TABLE_NAME, null,cv)
 
-        Log.i("BD",cv.get(COL_ADDRESS).toString() + cv.get(COL_LAT).toString() + cv.get(COL_LONG))
 
         if (result == -1.toLong())
         {
@@ -76,9 +73,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
 
 
     fun insertDataPer(zonaRiesgo: ZonaRiesgoBD){
-
-        Log.i("Datos",readDataPer().toString())
-
 
 
         val db = this.writableDatabase
@@ -98,7 +92,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
         cv.put(COL_LONG, zonaRiesgo.lng)
         var result = db.insert(TABLE_PER, null,cv)
 
-        //Log.i("BD",cv.get(COL_ADDRESS).toString() + cv.get(COL_LAT).toString() + cv.get(COL_LONG))
 
         if (result == -1.toLong())
         {
@@ -140,7 +133,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
         val db = this.readableDatabase
         val query = "Select * from " + TABLE_PER
         val result = db.rawQuery(query,null)
-        //Log.i("Personalizados ",result.)
         if(result.moveToFirst()){
             do {
                 var zona = ZonaRiesgoBD(0,"","","",0)
@@ -159,7 +151,6 @@ class DatabaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE
         val db = this.writableDatabase
         val query = "DELETE FROM "+ TABLE_NAME  +
                 " WHERE "+ COL_ID + "=" + id.toString();
-        //db.execSQL(query)
         db.delete(TABLE_NAME, COL_ID +"="+id.toString(), null)
         db.close()
     }

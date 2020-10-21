@@ -6,10 +6,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import android.location.LocationManager
-import android.media.Image
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.*
 import com.example.geoincendios.R
 import com.example.geoincendios.activities.LoginActivity
-import com.example.geoincendios.activities.MainActivity
 import com.example.geoincendios.activities.RecomendacionesActivity
 import com.example.geoincendios.activities.WebViewActivity
 import com.example.geoincendios.interfaces.UsuarioApiService
@@ -25,9 +22,6 @@ import com.example.geoincendios.models.DTO.UserDTO
 import com.example.geoincendios.models.Role
 import com.example.geoincendios.models.Usuario
 import com.example.geoincendios.util.URL_API
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_perfil.*
-import kotlinx.android.synthetic.main.password_change_dialog.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,7 +29,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.*
 
 
@@ -119,7 +112,6 @@ class PerfilFragment : Fragment() {
         tv_apellido.setText(prefs.getString("apellido",""))
         tv_correo.setText(prefs.getString("email",""))
 
-        Log.i("Service",prefs.getBoolean("service",false).toString())
 
         chb_segundoplano.isChecked = prefs.getBoolean("service",false)
 
@@ -207,7 +199,7 @@ class PerfilFragment : Fragment() {
 
         val user = Usuario(idusuario = prefs.getString("idusuario","")!!, firtsName = prefs.getString("name","")!!,lastName = prefs.getString("apellido","")!!,
             email = prefs.getString("email","")!!,password = et_new_password.text.toString(),role = Role(idrol = prefs.getInt("idrole",3)!!,role = ""),
-            status = 1, user_reg = "",fec_reg = prefs.getString("fec_reg","") , cpc_reg = null,user_mod = null,cpc_mod = null,fec_mod = currentDate )
+            status = 1, user_reg = "",fec_reg = prefs.getString("fec_reg","") , cpc_reg = null,user_mod = prefs.getString("email",""),cpc_mod = getAndroidId(),fec_mod = currentDate )
 
         //Toast.makeText(activity,currentDate,Toast.LENGTH_LONG).show()
 
@@ -216,13 +208,10 @@ class PerfilFragment : Fragment() {
 
             override fun onResponse(call: Call<UserDTO>, response: Response<UserDTO>) {
                 val usuario = response.body()
-                Log.i("Usuario",user.toString())
-                Log.i("Actualizar Perfil",response.body().toString())
-                
+
                 showDialogSuccess()
             }
             override fun onFailure(call: Call<UserDTO>, t: Throwable) {
-                Log.i("Resultado", "Ah ocurrido un error")
                 btn_cambiar_contra.isClickable = true
             }
         })
@@ -274,6 +263,9 @@ class PerfilFragment : Fragment() {
         fun newInstance() = PerfilFragment()
     }
 
+    fun getAndroidId() : String {
+        return Settings.Secure.getString(activity!!.contentResolver, Settings.Secure.ANDROID_ID)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
